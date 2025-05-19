@@ -9,7 +9,7 @@ def new_user(user_obj : User, collection):
     try:
         user_data = {
             "user_id": user_obj.user_id,
-            "name": user_obj.username,
+            "name": user_obj.name,
             "email": user_obj.email,
             "base_currency": user_obj.currency,
             "hashed_password": "test_hashed_password"

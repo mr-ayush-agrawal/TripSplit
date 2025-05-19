@@ -1,4 +1,6 @@
 fastapi
+fastapi[standard]
 pymongo[srv]==3.12
 python-dotenv
 pydantic[email]
+uvicorn
