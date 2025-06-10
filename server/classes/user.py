@@ -1,11 +1,15 @@
-class User:
-    def __init__(self, user_id: int, name: str, email: str, currency: str = "INR"):
-        self.user_id = user_id
-        self.name = name
-        self.email = email
-        self.currency = currency
-        self.hashed_password = None
-        self.base_currency = currency
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, List
+from datetime import datetime
 
-    def __repr__(self):
-        return f"User({self.user_id}, {self.name}, {self.email}, {self.currency})"
+class User(BaseModel):
+    user_id : str
+    name : str
+    email : EmailStr
+    currency : Optional[str] = 'INR'
+    password : str
+    friends : Optional[List['User']] = None
+    created_at : datetime = datetime.now()
+
+
+User.rebuild_model()
