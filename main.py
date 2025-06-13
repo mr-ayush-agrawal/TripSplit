@@ -1,21 +1,20 @@
+from server.databases.config import connect_db
+from server.routes.user import user_router
+from dotenv import load_dotenv
+import os
 from fastapi import FastAPI, HTTPException
-from server.databases.UserDataBase import connect_user_db
-from server.routes import user as user_routes
-import os, uvicorn
 
+load_dotenv()
 app = FastAPI()
+database = connect_db()
+user_collection = database[os.getenv('USER_DATA_COLLECTION')]
 
-MONGO_DB_URL = os.getenv("MONGO_DB_URI")
-USER_DATABASE_NAME = os.getenv("DATABASE_NAME")
-USER_COLLECTION = os.getenv("USER_DATA_COLLECTION")
+app.include_router(user_router, prefix='/user')
 
-user_db_client = connect_user_db(MONGO_DB_URL, USER_DATABASE_NAME, USER_COLLECTION)
+@app.get('/')
+def home():
+    return{
+        'status_code' : 200,
+        'message' : 'Welcome to Home page'
+    }
 
-app.include_router(user_routes.router)
-
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}

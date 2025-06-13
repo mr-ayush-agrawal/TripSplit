@@ -1,8 +1,19 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, SecretStr
+from typing import Optional, List
+from datetime import datetime
 
-class UserSchema(BaseModel):
-    user_id: int = Field(unique=True)
-    name: str
-    email: EmailStr = Field(unique=True)
-    base_currency: str = Field(default="INR", pattern="^[A-Z]{3}$")
-    hashed_password: str 
+class NewUser(BaseModel):
+    name : str
+    email : EmailStr
+    user_name : str 
+    currency : Optional[str] = 'INR'
+    password : SecretStr
+
+class UserResponse(BaseModel):
+    name : str
+    email : EmailStr
+    user_name = str
+    currency : str
+    hashed_password : str
+    groups : List[str] = []
+    created_at : datetime = datetime.now()
