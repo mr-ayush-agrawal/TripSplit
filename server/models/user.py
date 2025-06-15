@@ -12,8 +12,12 @@ class NewUser(BaseModel):
 class UserResponse(BaseModel):
     name : str
     email : EmailStr
-    user_name = str
+    user_name : str
     currency : str
     hashed_password : str
     groups : List[str] = []
-    created_at : datetime = datetime.now()
+    created_at : datetime = Field(default_factory=datetime.utcnow)
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: SecretStr

@@ -19,6 +19,12 @@ def connect_db():
         logging.info(f"Connected to MongoDB Client")
 
         database = client[DATABASE_NAME]
+        user_collection = database[os.getenv("USER_DATA_COLLECTION")]
+
+        # 🔐 Add unique indexes for email and user_name
+        user_collection.create_index("email", unique=True)
+        user_collection.create_index("user_name", unique=True)
+        
         logging.info(f"Reterived Database")
         return database
 
