@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, SecretStr
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -7,7 +7,7 @@ class NewUser(BaseModel):
     email : EmailStr
     user_name : str 
     currency : Optional[str] = 'INR'
-    password : SecretStr
+    password : str
 
 class UserResponse(BaseModel):
     name : str
@@ -19,5 +19,12 @@ class UserResponse(BaseModel):
     created_at : datetime = Field(default_factory=datetime.utcnow)
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: SecretStr
+    email: Optional[EmailStr] = None
+    user_name: Optional[str] = None
+    password: str
+
+    @model_validator(mode = 'after')
+    def checkMailandUsername(cls, values):
+        if values.email == None and values.user_name==None:
+            raise ValueError('Atleast one of email / user name required')
+        return values
