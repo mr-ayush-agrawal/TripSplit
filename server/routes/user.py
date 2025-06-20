@@ -6,19 +6,19 @@ user_router = APIRouter()
 
 @user_router.post("/signup")
 async def signup(user: NewUser):
-        return signup(user)
+        return await signup(user)
 
 @user_router.post('/login')
 async def login(login_data : LoginRequest, response : Response):
-    return login(login_data, response)
+    return await login(login_data, response)
 
 @user_router.get("/logout")
 async def logout(response: Response):
-    return logout(response)
+    return await logout(response)
 
 @user_router.get("/profile")
 async def get_profile():
-    return get_profile()
+    return await get_profile()
 
 
 

@@ -1,12 +1,13 @@
 from fastapi import Depends, HTTPException, status, Request
 from server.utils.jwt_auth import verify_token
+from server.utils import LOGIN_COOKIE_NAME
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 async def is_logged_in(request: Request):
-    token = request.cookies.get("access_token")
+    token = request.cookies.get(LOGIN_COOKIE_NAME)
 
     if not token:
         raise HTTPException(

@@ -77,6 +77,7 @@ def login(login_data : LoginRequest, response : Response):
             max_age=COOKIE_TIMER  # in seconds
         )
 
+        logging.info(f'Login succesful for user : {user['user_name']}')
         return {"status_code": 200, "message": "Login successful"}
     except HTTPException as e : 
         logging.error(f"Login failed: {e.status_code} - {e.detail}")
@@ -89,7 +90,7 @@ def logout(response: Response, user=Depends(is_logged_in)):
     try : 
         response.delete_cookie(LOGIN_COOKIE_NAME)
         logging.info("User logged out")
-        return {"status_code": 200, "message": "Logged out successfully"}
+        return {"status_code": 200, "message": f"{user.user_name} logged out successfully"}
     except :
         logging.error('Error Logging out')
         raise HTTPException(status_code=400, detail="Can't log out the user")
