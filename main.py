@@ -1,15 +1,18 @@
-from server.databases.config import connect_db
+from server.databases.config import DatabaseConfig
 from server.routes.user import user_router
+from server.routes.group import group_router
+
 from dotenv import load_dotenv
 import os
 from fastapi import FastAPI, HTTPException
 
 load_dotenv()
 app = FastAPI()
-database = connect_db()
-user_collection = database[os.getenv('USER_DATA_COLLECTION')]
+# database = DatabaseConfig()
+# user_collection = database.get_user_collection()
 
 app.include_router(user_router, prefix='/user')
+app.include_router(group_router, prefix='/group')
 
 @app.get('/')
 def home():

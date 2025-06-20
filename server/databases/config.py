@@ -10,25 +10,34 @@ from server.utils.logger import logging
 env_path = Path('server') / '.env'
 load_dotenv(dotenv_path=env_path)
 
-MONGO_DB_URL = os.getenv('MONGO_DB_URI')
-DATABASE_NAME = os.getenv('DATABASE_NAME')
 
-def connect_db():
-    try:
-        client = MongoClient(MONGO_DB_URL, server_api=ServerApi('1'))
-        logging.info(f"Connected to MongoDB Client")
+class DatabaseConfig:
+    def __init__(self):
+        try:
+            self.client = MongoClient(os.getenv('MONGO_DB_URI'), server_api=ServerApi('1'))
+            logging.info(f"Connected to MongoDB Client")
+            
+            self.database = self.client[os.getenv('DATABASE_NAME')]
+            self.user_collection = self.database[os.getenv("USER_DATA_COLLECTION")]
+            self.user_collection.create_index("email", unique=True)
+            self.user_collection.create_index("user_name", unique=True)
 
-        database = client[DATABASE_NAME]
-        user_collection = database[os.getenv("USER_DATA_COLLECTION")]
+            self.group_collection = self.database[os.getenv("GROUP_DATA_COLLECTION")]
+            self.group_collection.create_index("group_id", unique=True)
 
-        # 🔐 Add unique indexes for email and user_name
-        user_collection.create_index("email", unique=True)
-        user_collection.create_index("user_name", unique=True)
-        
-        logging.info(f"Reterived Database")
-        return database
+            self.expense_collection = self.database[os.getenv("EXPENSE_DATA_COLLECTION")]
+            self.expense_collection.create_index("expense_id", unique=True)
 
-    except Exception as e:
-        logging.error("Database connection failed")
-        print('Failed to connect to the database')
-        raise CustomError(e, sys)
+        except Exception as e:
+            logging.error("Database connection failed")
+            print('Failed to connect to the database')
+            raise CustomError(e, sys)
+
+    def get_user_collection(self):
+        return self.user_collection
+
+    def get_group_collection(self):
+        return self.group_collection    
+    
+    def get_expense_collection(self):
+        return self.expense_collection

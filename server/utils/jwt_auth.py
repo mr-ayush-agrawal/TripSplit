@@ -1,12 +1,15 @@
 from jose import jwt, JWTError
+from fastapi import HTTPException, status
 from datetime import datetime, timedelta
+from server.utils import COOKIE_TIMER
 import os 
 from dotenv import load_dotenv
 load_dotenv()
 
 SECRET_KEY = os.getenv('JWT_SECRET')
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 
+ALGORITHM = os.getenv('JWT_ALGORITHM')
+
+ACCESS_TOKEN_EXPIRE_MINUTES = COOKIE_TIMER/60 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
@@ -19,5 +22,8 @@ def verify_token(token: str):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
 

@@ -1,17 +1,19 @@
 import sys, os
 from fastapi import HTTPException, Response, Depends
 
-from server.databases.config import connect_db
+from server.databases.config import DatabaseConfig
 from server.models.user import NewUser, LoginRequest
+from server.middleware.auth import is_logged_in
 
 from server.utils.logger import logging
 from server.utils.password_hash import hash_password,verify_password
 from server.utils.jwt_auth import create_access_token
 from server.utils.auth import get_current_user
+from server.utils import COOKIE_TIMER, LOGIN_COOKIE_NAME
 
 
-database = connect_db()
-user_collection = database[os.getenv('USER_DATA_COLLECTION')]
+database = DatabaseConfig()
+user_collection = database.get_user_collection()
 
 
 # ------------ Routes Functions ---------------------
@@ -52,14 +54,12 @@ def login(login_data : LoginRequest, response : Response):
         elif login_data.user_name:
             user = user_collection.find_one({"user_name": login_data.user_name})
         else : 
-            raise ValueError('No Email or Username found')
+            raise HTTPException(status_code=400, detail="Email or Username required")
 
         if not user : 
             raise HTTPException(status_code=404, detail="User not found")
         if not verify_password(login_data.password, user['password']):
             raise HTTPException(status_code=401, detail="Incorrect password")
-
-        print('OK')
 
         token_data = {
             "user_id": str(user["_id"]),
@@ -69,24 +69,25 @@ def login(login_data : LoginRequest, response : Response):
         token = create_access_token(data=token_data)
 
         response.set_cookie(
-            key="access_token",
+            key=LOGIN_COOKIE_NAME,
             value=token,
             httponly=True,
             secure=False,  # Set to True in production with HTTPS
             samesite="lax",  # or 'strict'/'none'
-            max_age=3600  # in seconds
+            max_age=COOKIE_TIMER  # in seconds
         )
 
         return {"status_code": 200, "message": "Login successful"}
     except HTTPException as e : 
-        raise HTTPException(e.status_code, e.detail)
+        logging.error(f"Login failed: {e.status_code} - {e.detail}")
+        raise e
     except Exception as e : 
         logging.error(f"Login failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def logout(response: Response):
+def logout(response: Response, user=Depends(is_logged_in)):
     try : 
-        response.delete_cookie("access_token")
+        response.delete_cookie(LOGIN_COOKIE_NAME)
         logging.info("User logged out")
         return {"status_code": 200, "message": "Logged out successfully"}
     except :

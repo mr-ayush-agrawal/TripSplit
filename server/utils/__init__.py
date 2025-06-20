@@ -1,0 +1,2 @@
+COOKIE_TIMER = 1 * 60 * 60
+LOGIN_COOKIE_NAME = 'UserLogin'
