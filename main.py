@@ -1,4 +1,4 @@
-from server.databases.config import DatabaseConfig
+from server.databases.config import database
 from server.routes.user import user_router
 from server.routes.group import group_router
 
@@ -8,8 +8,6 @@ from fastapi import FastAPI, HTTPException
 
 load_dotenv()
 app = FastAPI()
-# database = DatabaseConfig()
-# user_collection = database.get_user_collection()
 
 app.include_router(user_router, prefix='/user')
 app.include_router(group_router, prefix='/group')

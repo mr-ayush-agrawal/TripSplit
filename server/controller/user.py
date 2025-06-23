@@ -1,18 +1,17 @@
 import sys, os
 from fastapi import HTTPException, Response, Depends
 
-from server.databases.config import DatabaseConfig
+from server.databases.config import database
 from server.models.user import NewUser, LoginRequest
 from server.middleware.auth import is_logged_in
 
 from server.utils.logger import logging
 from server.utils.password_hash import hash_password,verify_password
 from server.utils.jwt_auth import create_access_token
-from server.utils.auth import get_current_user
+
 from server.utils import COOKIE_TIMER, LOGIN_COOKIE_NAME
 
 
-database = DatabaseConfig()
 user_collection = database.get_user_collection()
 
 
@@ -86,16 +85,17 @@ def login(login_data : LoginRequest, response : Response):
         logging.error(f"Login failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def logout(response: Response, user=Depends(is_logged_in)):
+def logout(response: Response, user):
     try : 
         response.delete_cookie(LOGIN_COOKIE_NAME)
         logging.info("User logged out")
-        return {"status_code": 200, "message": f"{user.user_name} logged out successfully"}
+        return {"status_code": 200, "message": f"{user['user_name']} logged out successfully"}
     except :
         logging.error('Error Logging out')
         raise HTTPException(status_code=400, detail="Can't log out the user")
 
-def get_profile(user=Depends(get_current_user)):
+def get_profile(user):
+    logging.info("Getting the user info")
     return {
         "status_code": 200,
         "user": user

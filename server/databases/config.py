@@ -41,3 +41,5 @@ class DatabaseConfig:
     
     def get_expense_collection(self):
         return self.expense_collection
+
+database = DatabaseConfig()

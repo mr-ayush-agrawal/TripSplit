@@ -1,24 +1,25 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Depends
 from server.models.user import NewUser, LoginRequest
 from server.controller.user import signup, login, logout, get_profile
+from server.middleware.auth import is_logged_in
 
 user_router = APIRouter()
 
 @user_router.post("/signup")
-async def signup(user: NewUser):
-        return await signup(user)
+async def user_signup(user: NewUser):
+        return signup(user)
 
 @user_router.post('/login')
-async def login(login_data : LoginRequest, response : Response):
-    return await login(login_data, response)
+async def user_login(login_data : LoginRequest, response : Response):
+    return login(login_data, response)
 
 @user_router.get("/logout")
-async def logout(response: Response):
-    return await logout(response)
+async def user_logout(response: Response,user=Depends(is_logged_in)):
+    return logout(response, user)
 
 @user_router.get("/profile")
-async def get_profile():
-    return await get_profile()
+async def user_get_profile(user=Depends(is_logged_in)):
+    return get_profile(user)
 
 
 
