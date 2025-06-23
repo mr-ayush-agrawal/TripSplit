@@ -98,7 +98,7 @@ def get_profile(user):
     logging.info("Getting the user info")
     return {
         "status_code": 200,
-        "user": user
+        "data": user
     }
 
 

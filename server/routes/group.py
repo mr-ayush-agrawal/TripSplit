@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends
 from server.models.group import NewGroup, AddMembersRequest
 
 from server.middleware.auth import is_logged_in
-from server.controller.group import create_group, add_member, remove_member,get_all_groups
-
+from server.controller.group import (
+    create_group, add_member, remove_member, get_all_groups, group_by_id
+)
 
 group_router = APIRouter()
 
@@ -11,6 +12,10 @@ group_router = APIRouter()
 @group_router.get('/') 
 async def get_all_user_groups(current_user=Depends(is_logged_in)):
     return get_all_groups(current_user)
+
+@group_router.get('/{group_id}')
+async def get_group_info(group_id : str, current_user = Depends(is_logged_in)):
+    return group_by_id(group_id, current_user)
 
 @group_router.post('/create-group')
 async def create_new_group(group: NewGroup, creator = Depends(is_logged_in)):

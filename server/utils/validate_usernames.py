@@ -13,7 +13,6 @@ def validate_usernames(usernames: list[str]) -> list[str]:
 
     valid_usernames = []
     for username in usernames:
-        print(f"Here : {username}")
         user = user_collection.find_one({"user_name": username})
         if user:
             valid_usernames.append(username)

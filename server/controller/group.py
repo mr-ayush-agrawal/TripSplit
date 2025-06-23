@@ -1,5 +1,5 @@
 import secrets
-from server.models.group import NewGroup, AddMembersRequest
+from server.models.group import NewGroup, AddMembersRequest, GroupData
 from fastapi import HTTPException
 
 from server.utils.logger import logging
@@ -38,7 +38,7 @@ def add_member(group_id: str, member_list: AddMembersRequest, current_user: str)
         
 
         logging.info(f'Adding members to the group {group_id}')
-        print(type(member_list))
+
         member_list = validate_usernames(member_list.usernames)
         if not member_list:
             raise HTTPException(status_code=400, detail="No valid usernames provided")
@@ -60,10 +60,10 @@ def add_member(group_id: str, member_list: AddMembersRequest, current_user: str)
 
         logging.info(f'Members added to group {group_id}: {member_list}')
         return {
-                    "status_code": 200,
-                    "message": f"Successfully added {len(member_list)} members to the group",
-                    "members_added": member_list
-                }
+            "status_code": 200,
+            "message": f"Successfully added {len(member_list)} members to the group",
+            "members_added": member_list
+        }
 
     except Exception as e:
         logging.error(f'Failed to add members to group {group_id}, {e}')
@@ -71,6 +71,7 @@ def add_member(group_id: str, member_list: AddMembersRequest, current_user: str)
    
 def remove_member(group_id: str, username: str, current_user: str):
     try : 
+        logging.info(f'Removing member {username} from group {group_id}')
         group = group_collection.find_one({"group_id": group_id})
         if not group:
             raise HTTPException(status_code=404, detail="Group not found")
@@ -85,9 +86,6 @@ def remove_member(group_id: str, username: str, current_user: str):
                     status_code=400,
                     detail="Cannot remove the group owner until all other members are removed."
                 )
-
-
-        logging.info(f'Removing member {username} from group {group_id}')
         
         balances = group.get("member_balances", {})
         user_balance = balances.get(username, 0.0)
@@ -105,6 +103,10 @@ def remove_member(group_id: str, username: str, current_user: str):
         logging.info(f"User {username} removed from group {group_id}")
         return {
             "status_code": 200,
+            "data" : {
+                "group_id": group_id,
+                "username": username
+            },
             "message": f"{username} successfully removed from the group"
         }
 
@@ -117,17 +119,18 @@ def get_all_groups(current_user: str):
         username = current_user['user_name']
         groups_list = group_collection.find({"members": username})
 
-        user_groups = {}
+        user_groups = []
         for group in groups_list:
             group_id = group.get("group_id")
             group_name = group.get("group_name", "Unnamed Group")
             balances = group.get("member_balances", {})
             user_balance = round(balances.get(username, 0.0), 2) 
 
-            user_groups[group_id] = {
+            user_groups.append({
+                "group_id": group_id,
                 "name": group_name,
                 "balance": user_balance
-            }
+            })
         return{
             "status_code" : 200,
             "user_groups" : user_groups
@@ -136,7 +139,28 @@ def get_all_groups(current_user: str):
         logging.error(f'Failed to get the groups of  {username}, {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
+def group_by_id(group_id: str, current_user: str):
+    try : 
+        username = current_user['user_name']
+        group = group_collection.find_one({"group_id": group_id})
+        logging.info(f'Fetching the group info of {group_id}')
 
+        if not group:
+            raise HTTPException(status_code=404, detail="Group not found")
+
+        if username not in group.get("members", []) and username != group.get("owner_username"):
+            raise HTTPException(status_code=403, detail="You are not a member of this group")
+
+        group.pop('_id', None)
+
+        logging.info(f'{group_id} group info fetched')
+        return {
+            'status_code' : 200,
+            'data' : GroupData(**group)
+        }
+    except Exception as e: 
+        logging.error(f'Failed to get the group info of {group_id}, {e}')
+        raise HTTPException(status_code = 500, detail = str(e))
 
 def create_unique_group_id():
     i = 0

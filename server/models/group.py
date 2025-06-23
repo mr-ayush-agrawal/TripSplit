@@ -16,7 +16,7 @@ class GroupData(BaseModel):
     group_id: str
     owner_username: str
     members: List[str] = Field(description='List of user_names of the group members')
-    expenses: Optional[List[str]] = Field( description='List of Expenses by the group members')
-    member_balances: Optional[Dict[str, float]] = Field()
+    expenses: Optional[List[str]] = Field(default_factory=list, description='List of Expenses by the group members')
+    member_balances: Optional[Dict[str, float]] = Field(default_factory=dict)
 
     total_expense: float = Field(ge=0, default=0.0)
