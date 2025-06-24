@@ -25,7 +25,7 @@ def create_group(group: NewGroup, creator: str):
             'group_id': group_id
         }
     except Exception as e:
-        logging.error(f'User signup failed, {e}')
+        logging.error(f'Failed to make group, {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
 def add_member(group_id: str, member_list: AddMembersRequest, current_user: str):

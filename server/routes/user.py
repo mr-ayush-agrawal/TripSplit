@@ -3,7 +3,7 @@ from server.models.user import NewUser, LoginRequest
 from server.controller.user import signup, login, logout, get_profile
 from server.middleware.auth import is_logged_in
 
-user_router = APIRouter()
+user_router = APIRouter(tags=["Users"])
 
 @user_router.post("/signup")
 async def user_signup(user: NewUser):

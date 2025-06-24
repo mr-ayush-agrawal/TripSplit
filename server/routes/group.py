@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 from server.models.group import NewGroup, AddMembersRequest
+from server.routes.expense import expense_router
 
 from server.middleware.auth import is_logged_in
 from server.controller.group import (
     create_group, add_member, remove_member, get_all_groups, group_by_id
 )
-
-group_router = APIRouter()
+group_router = APIRouter(tags=["Groups"])
+group_router.include_router(expense_router, prefix="/{group_id}/expense")
 
 
 @group_router.get('/') 
