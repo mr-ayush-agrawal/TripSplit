@@ -1,9 +1,7 @@
-import sys, os
-from fastapi import HTTPException, Response, Depends
+from fastapi import HTTPException, Response
 
 from server.databases.config import database
-from server.models.user import NewUser, LoginRequest
-from server.middleware.auth import is_logged_in
+from server.models.user import *
 
 from server.utils.logger import logging
 from server.utils.password_hash import hash_password,verify_password
@@ -15,7 +13,6 @@ from server.utils import COOKIE_TIMER, LOGIN_COOKIE_NAME
 user_collection = database.get_user_collection()
 
 
-# ------------ Routes Functions ---------------------
 def signup(user: NewUser):
     try : 
         # Checking for existing useres
@@ -43,7 +40,6 @@ def signup(user: NewUser):
     except Exception as e:
         logging.error(f'User signup failed, {e}')
         raise HTTPException(status_code=500, detail=str(e))
-
 
 def login(login_data : LoginRequest, response : Response):
     try:
@@ -85,7 +81,7 @@ def login(login_data : LoginRequest, response : Response):
         logging.error(f"Login failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def logout(response: Response, user):
+def logout(response: Response, user : User):
     try : 
         response.delete_cookie(LOGIN_COOKIE_NAME)
         logging.info("User logged out")
@@ -94,7 +90,7 @@ def logout(response: Response, user):
         logging.error('Error Logging out')
         raise HTTPException(status_code=400, detail="Can't log out the user")
 
-def get_profile(user):
+def get_profile(user : User):
     logging.info("Getting the user info")
     try:
         exclude_fields = {'password', '_id'}
@@ -108,67 +104,49 @@ def get_profile(user):
         logging.error(f"Missing expected user field: {e}")
         raise HTTPException(status_code=400, detail=f"Missing field: {e}")
 
+def update_info(newinfo : UpdateUserInfo, user: User):
+    try : 
+        user_name = user['user_name']
+        update_fields = {}
 
-    
-
-# ------------ Prior -----------------
-# from server.utils.exception import CustomError
-# from pymongo.errors import DuplicateKeyError
-
-# async def new_user(user_obj : User, collection):
-#     try:
-#         user_data = {
-#             "user_id": user_obj.user_id,
-#             "name": user_obj.name,
-#             "email": user_obj.email,
-#             "base_currency": user_obj.currency,
-#             "hashed_password": "test_hashed_password"
-#         }
-
-#         validated_user = UserSchema(**user_data)
-#         if not validated_user:
-#             raise CustomError("User data validation failed", sys)
-
-#         result = collection.insert_one(validated_user.dict())
-#         logging.info(f"User inserted with id: {result.inserted_id}")
-
-#         return result.inserted_id
-#     except DuplicateKeyError as e:  
-#         logging.error(f"User with id {user_obj.user_id} or email {user_obj.email} already exists.")
-#         raise CustomError("User already exists", sys)
-#     except Exception as e:
-#         logging.error(f"Error inserting user: {e}")
-#         raise CustomError(e, sys)
-
-
-# async def update_user_info(user_id: int, collection, new_info: dict):
-#     '''
-#     Update user information in the database.
-#     Args:
-#         user_id (int): ID of the user to update.
-#         collection: MongoDB collection to perform the update operation.
-#         new_info (dict): Dictionary containing the new information to update.
-#     '''
-#     logging.info(f"Updating user with id: {user_id}")
-#     try:
-#         existing_data = collection.find_one({"user_id": user_id})
-#         if not existing_data:
-#             logging.error(f"User with id {user_id} not found.")
-#             raise CustomError("User not found", sys)
+        # Only update provided fields
+        for field in ['name', 'email', 'currency']:
+            if newinfo.get(field):
+                update_fields[field] = newinfo[field]
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
         
-#         user_data = {
-#             "user_id": new_info.get("user_id", existing_data["user_id"]),
-#             "name": new_info.get("name", existing_data["name"]),
-#             "email": new_info.get("email", existing_data["email"]),
-#             "base_currency": new_info.get("base_currency", existing_data["base_currency"])
-#         }
+        result = user_collection.update_one(
+            {"user_name": user_name},
+            {"$set": update_fields}
+        )
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="No changes made")
 
+        logging.info(f"User {user_name} updated info: {update_fields}")
+        return {"status_code": 200, "message": "User info updated"}
 
-#         result = collection.update_one({"user_id": user_id}, {"$set": user_data})
-#         logging.info(f"User updated with id: {user_id}")
+    except Exception as e:
+        logging.error(f"Failed to update the user info : {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+def update_password(newinfo: UpdatePassword, current_user: User):
+    try :
+        user_name = current_user['user_name']
+        user = user_collection.find_one({"user_name": user_name})
 
-#         return result.modified_count
-
-#     except Exception as e:
-#         logging.error(f"Error updating user: {e}")
-#         raise CustomError(e, sys)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if not verify_password(newinfo['old_password'], user['password']):
+            raise HTTPException(status_code=401, detail="Incorrect old password")
+        
+        hashed_new_password = hash_password(newinfo['new_password'])
+        user_collection.update_one(
+            {"user_name": user_name},
+            {"$set": {"password": hashed_new_password}}
+        )
+        logging.info(f"Password updated for user {user_name}")
+        return {"status_code": 200, "message": "Password updated successfully"}
+    except Exception as e:
+        logging.error(f"Failed to find the user for password update: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

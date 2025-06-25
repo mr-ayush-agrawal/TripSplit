@@ -9,7 +9,7 @@ class NewUser(BaseModel):
     currency : Optional[str] = 'INR'
     password : str
 
-class UserResponse(BaseModel):
+class User(BaseModel):
     name : str
     email : EmailStr
     user_name : str
@@ -28,3 +28,12 @@ class LoginRequest(BaseModel):
         if values.email == None and values.user_name==None:
             raise ValueError('Atleast one of email / user name required')
         return values
+
+class UpdateUserInfo(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    currency: Optional[str] = None
+
+class UpdatePassword(BaseModel):
+    old_password: str
+    new_password: str
