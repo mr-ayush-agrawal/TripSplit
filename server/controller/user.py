@@ -96,13 +96,20 @@ def logout(response: Response, user):
 
 def get_profile(user):
     logging.info("Getting the user info")
-    return {
-        "status_code": 200,
-        "data": user
-    }
+    try:
+        exclude_fields = {'password', '_id'}
+        profile = {k: v for k, v in user.items() if k not in exclude_fields}
+        return {
+            "status_code": 200,
+            "data": profile
+        }
+
+    except KeyError as e:
+        logging.error(f"Missing expected user field: {e}")
+        raise HTTPException(status_code=400, detail=f"Missing field: {e}")
 
 
-
+    
 
 # ------------ Prior -----------------
 # from server.utils.exception import CustomError
