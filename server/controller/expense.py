@@ -57,6 +57,9 @@ def add_expense(group_id : str, expense: NewExpense, current_user : str):
             "data": new_exp
         }
 
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to add expense: {str(e)}')
         return {
@@ -120,6 +123,10 @@ def all_expenses(group_id: str, current_user: str):
                 "expenses": user_expense_summary
             }
         }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e :
         logging.error(f'Failed to fetch the expenses for the group {group_id}')
         raise HTTPException(status_code=500, detail=f'Internal server error: {str(e)}')
@@ -151,6 +158,9 @@ def single_expense(group_id: str, expense_id: str, current_user: str):
             "expense": expense
         }
         
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to fetch expense {expense_id} for group {group_id}: {str(e)}')
         raise HTTPException(status_code=500, detail=f'Internal server error: {str(e)}')
@@ -221,7 +231,10 @@ def update_expense(group_id: str, expense_id : str, updated_data : UpdateExpense
             "expense_id": expense_id,
             "data": updated_exp
         }
-        
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he    
     except Exception as e:
         logging.error(f'Failed to update expense {expense_id} for group {group_id}: {str(e)}')
         raise HTTPException(status_code=500, detail=f'Internal server error: {str(e)}')
@@ -267,9 +280,14 @@ def delete_single_expense(group_id: str, expense_id: str, current_user: dict):
             "expense_id": expense_id
         }
 
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f"Error deleting expense: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
 
 def create_unique_expense_id():
     i = 0

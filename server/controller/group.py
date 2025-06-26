@@ -24,6 +24,10 @@ def create_group(group: NewGroup, creator: str):
             'message': 'Group created successfully',
             'group_id': group_id
         }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to make group, {e}')
         raise HTTPException(status_code=500, detail=str(e))
@@ -65,6 +69,9 @@ def add_member(group_id: str, member_list: AddMembersRequest, current_user: str)
             "members_added": member_list
         }
 
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to add members to group {group_id}, {e}')
         raise HTTPException(status_code=500, detail=str(e))
@@ -110,6 +117,9 @@ def remove_member(group_id: str, username: str, current_user: str):
             "message": f"{username} successfully removed from the group"
         }
 
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to remove member {username} from group {group_id}, {e}')
         raise HTTPException(status_code=500, detail=str(e))
@@ -135,6 +145,10 @@ def get_all_groups(current_user: str):
             "status_code" : 200,
             "user_groups" : user_groups
         }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'Failed to get the groups of  {username}, {e}')
         raise HTTPException(status_code=500, detail=str(e))
@@ -158,9 +172,15 @@ def group_by_id(group_id: str, current_user: str):
             'status_code' : 200,
             'data' : GroupData(**group)
         }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e: 
         logging.error(f'Failed to get the group info of {group_id}, {e}')
         raise HTTPException(status_code = 500, detail = str(e))
+
+
 
 def create_unique_group_id():
     i = 0

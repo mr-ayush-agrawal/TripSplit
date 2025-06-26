@@ -37,6 +37,10 @@ def signup(user: NewUser):
             'status_code' : 200,
             'id' : str(resp.inserted_id)
         }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f'User signup failed, {e}')
         raise HTTPException(status_code=500, detail=str(e))
@@ -74,9 +78,10 @@ def login(login_data : LoginRequest, response : Response):
 
         logging.info(f'Login succesful for user : {user['user_name']}')
         return {"status_code": 200, "message": "Login successful"}
-    except HTTPException as e : 
-        logging.error(f"Login failed: {e.status_code} - {e.detail}")
-        raise e
+
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e : 
         logging.error(f"Login failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -86,9 +91,13 @@ def logout(response: Response, user : User):
         response.delete_cookie(LOGIN_COOKIE_NAME)
         logging.info("User logged out")
         return {"status_code": 200, "message": f"{user['user_name']} logged out successfully"}
-    except :
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
+    except Exception as e:
         logging.error('Error Logging out')
-        raise HTTPException(status_code=400, detail="Can't log out the user")
+        raise HTTPException(status_code=400, detail=f"Can't log out the user {str(e)}")
 
 def get_profile(user : User):
     logging.info("Getting the user info")
@@ -100,7 +109,10 @@ def get_profile(user : User):
             "data": profile
         }
 
-    except KeyError as e:
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
+    except Exception as e:
         logging.error(f"Missing expected user field: {e}")
         raise HTTPException(status_code=400, detail=f"Missing field: {e}")
 
@@ -126,6 +138,9 @@ def update_info(newinfo : UpdateUserInfo, user: User):
         logging.info(f"User {user_name} updated info: {update_fields}")
         return {"status_code": 200, "message": "User info updated"}
 
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f"Failed to update the user info : {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -147,6 +162,10 @@ def update_password(newinfo: UpdatePassword, current_user: User):
         )
         logging.info(f"Password updated for user {user_name}")
         return {"status_code": 200, "message": "Password updated successfully"}
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
     except Exception as e:
         logging.error(f"Failed to find the user for password update: {e}")
         raise HTTPException(status_code=500, detail=str(e))
