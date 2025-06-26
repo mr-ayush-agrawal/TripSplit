@@ -16,7 +16,7 @@ class User(BaseModel):
     currency : str
     hashed_password : str
     groups : List[str] = []
-    created_at : datetime = Field(default_factory=datetime.utcnow)
+    created_at : datetime = Field(default_factory=datetime.now())
 
 class LoginRequest(BaseModel):
     email: Optional[EmailStr] = None

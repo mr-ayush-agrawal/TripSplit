@@ -54,3 +54,12 @@ class Expense(NewExpense):
     expense_id : str
     group_id : str
     expense_owner : str #user_name of the user who created the expense
+
+class UpdateExpense(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    amount_original: Optional[float] = Field(ge=0, default=None)
+    original_currency: Optional[str] = None
+    exchange_rate: Optional[float] = Field(default=None)
+    paid_by_original: Optional[Dict[str, float]] = None
+    borrowed_by_original: Optional[Dict[str, float]] = None
