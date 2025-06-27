@@ -3,9 +3,7 @@ from server.models.group import NewGroup, AddMembersRequest
 from server.routes.expense import expense_router
 
 from server.middleware.auth import is_logged_in
-from server.controller.group import (
-    create_group, add_member, remove_member, get_all_groups, group_by_id
-)
+from server.controller.group import *
 group_router = APIRouter(tags=["Groups"])
 group_router.include_router(expense_router, prefix="/{group_id}/expense")
 
@@ -29,3 +27,7 @@ async def add_members_to_group(group_id: str, member_list: AddMembersRequest, cu
 @group_router.delete("/{group_id}/remove-member/{username}")
 async def remove_member_from_group(group_id: str, username: str, current_user=Depends(is_logged_in)):
     return remove_member(group_id, username, current_user)
+
+@group_router.get('/{group_id}/simplified')
+async def simplify_group_debts(group_id: str, current_user = Depends(is_logged_in)):
+    return simplify(group_id, current_user)

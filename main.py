@@ -1,10 +1,10 @@
-from server.databases.config import database
 from server.routes.user import user_router
 from server.routes.group import group_router
 
-from dotenv import load_dotenv
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from uvicorn import run
+from dotenv import load_dotenv
 
 load_dotenv()
 app = FastAPI()
@@ -19,3 +19,5 @@ def home():
         'message' : 'Welcome to Home page'
     }
 
+if __name__ == '__main__':
+    run("main:app", host='localhost', port=8000, reload=True)

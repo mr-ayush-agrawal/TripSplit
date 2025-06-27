@@ -4,6 +4,7 @@ from fastapi import HTTPException
 
 from server.utils.logger import logging
 from server.utils.validate_usernames import validate_usernames
+from server.utils.simplify_debts import simplify_debts
 
 from server.databases.config import database
 group_collection = database.get_group_collection()
@@ -180,6 +181,34 @@ def group_by_id(group_id: str, current_user: str):
         logging.error(f'Failed to get the group info of {group_id}, {e}')
         raise HTTPException(status_code = 500, detail = str(e))
 
+def simplify(group_id:str, current_user: dict):
+    try :
+        username = current_user['user_name']
+        group = group_collection.find_one({"group_id": group_id})
+        logging.info(f'Simplifying Debts for group : {group_id}')
+
+        if not group:
+            raise HTTPException(status_code=404, detail="Group not found")
+
+        if username not in group.get("members", []) and username != group.get("owner_username"):
+            raise HTTPException(status_code=403, detail="You are not a member of this group")
+        
+        member_balances = group.get("member_balances", {})
+        payments : dict[str, list[tuple[str, float]]] =  simplify_debts(member_balances)
+
+        return {
+            'status_code' : 200,
+            'description' : 'user1 : [user2 : amt] \n User1 pays amt to user2',
+            'base_currency': group.get("base_currency", "INR"),
+            'data' : payments
+        }
+    
+    except HTTPException as he:
+        logging.error(f'Error {str(he)}')
+        raise he
+    except Exception as e: 
+        logging.error(f'Failed to get the group info of {group_id}, {e}')
+        raise HTTPException(status_code = 500, detail = str(e))
 
 
 def create_unique_group_id():

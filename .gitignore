@@ -4,3 +4,7 @@ __pycache__/
 .env
 logs/
 *.log
+
+# cpp file
+simplification_algo.cpp
+simplification_algo.exe
