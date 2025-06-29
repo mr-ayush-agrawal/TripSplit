@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from server.utils.exception import CustomError
 from server.utils.logger import logging
 
-env_path = Path('server') / '.env'
-load_dotenv(dotenv_path=env_path)
-
+# env_path = Path('server') / '.env'
+# load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 class DatabaseConfig:
     def __init__(self):

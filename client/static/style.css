@@ -1,0 +1,41 @@
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+}
+
+.grid {
+    display: grid;
+}
+
+/* Custom button styles */
+[role="button"] {
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* Hero section enhancements */
+section {
+    margin: 0;
+}
+
+/* Feature cards spacing */
+article {
+    margin-bottom: 1rem;
+}
+
+/* Footer styling */
+footer {
+    margin-top: auto;
+    padding: 2rem 0;
+    text-align: center;
+    border-top: 1px solid var(--muted-border-color);
+}
+
+footer.footer {
+    height:  40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
