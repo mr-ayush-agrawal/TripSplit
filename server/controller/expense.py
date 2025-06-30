@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime
 from server.utils.logger import logging
-from server.models.expense import NewExpense, Expense, UpdateExpense
+from shared.models.expense import NewExpense, Expense, UpdateExpense
 from fastapi import HTTPException
 from server.databases.config import database
 

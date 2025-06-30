@@ -1,5 +1,5 @@
 import secrets
-from server.models.group import NewGroup, AddMembersRequest, GroupData
+from shared.models.group import NewGroup, AddMembersRequest, GroupData
 from fastapi import HTTPException
 
 from server.utils.logger import logging

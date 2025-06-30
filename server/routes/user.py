@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, Depends
-from server.models.user import *
+from shared.models.user import *
 from server.controller.user import *
 from server.middleware.auth import is_logged_in
 

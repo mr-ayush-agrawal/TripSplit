@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from server.models.expense import NewExpense, UpdateExpense
+from shared.models.expense import NewExpense, UpdateExpense
 
 from server.middleware.auth import is_logged_in
 from server.controller.expense import *

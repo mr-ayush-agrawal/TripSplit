@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from server.models.group import NewGroup, AddMembersRequest
+from shared.models.group import NewGroup, AddMembersRequest
 from server.routes.expense import expense_router
 
 from server.middleware.auth import is_logged_in

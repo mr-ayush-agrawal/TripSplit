@@ -1,7 +1,7 @@
 from fastapi import HTTPException, Response
 
 from server.databases.config import database
-from server.models.user import *
+from shared.models.user import *
 
 from server.utils.logger import logging
 from server.utils.password_hash import hash_password,verify_password
