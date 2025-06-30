@@ -1,6 +1,6 @@
 from fasthtml.common import *
 
-def auth_layout(title, content):
+def auth_layout(title, content, script = None):
     return Html(
         Head(
             Title(f"{title} - SplitWise"),
@@ -15,8 +15,9 @@ def auth_layout(title, content):
                         Header(H2("SplitWise", style="text-align: center; margin-bottom: .6rem;")),
                         content
                     ),
-                    style="max-width: 400px; margin: 2rem auto;"
+                    style="max-width: 600px; margin: 2rem auto;"
                 )
-            )
+            ),
+            script
         )
     )
