@@ -1,8 +1,13 @@
 import os, httpx
 from fasthtml.common import fast_app, Form
 from fastapi.responses import RedirectResponse
+
 from client.pages.auth import login_page, signup_page
+from client.pages.user import user_dashboard_page
+from client.static.user.dashboard import dashboard_styles
+
 from shared.models.user import LoginRequest, NewUser
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -68,10 +73,22 @@ async def signup_post(name : str, email : str, user_name : str, password : str, 
 
 
 @rt('/')
-def get():
-    return {
-        'page' : 'Home page after login'
-    }
+def user_home():
+    """User dashboard/home page"""
+
+    username = "John Doe"  # Get from session
+    total_groups = 3
+    total_expenses = 15
+    balance = 250.50
+
+    return user_dashboard_page(
+        username=username,
+        total_groups=total_groups,
+        total_expenses=total_expenses,
+        balance=balance
+    ), dashboard_styles()    
+
+
 
 @rt("/profile")
 def get():

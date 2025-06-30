@@ -23,19 +23,29 @@ def navbar(show_auth_buttons=True):
     return nav_bar
 
 
-# def dashboard_nav(user_name: str = "User"):
-#     """Navigation for authenticated users"""
-#     return Div(
-#         Div(
-#             H1("SplitWise", cls="text-3xl font-bold text-blue-600"),
-#             Div(
-#                 Span(f"Welcome, {user_name}", cls="text-gray-700 mr-4"),
-#                 A("Dashboard", href="/dashboard", cls=f"text-blue-600 {BUTTON_SMALL} mr-2 hover:underline"),
-#                 A("Groups", href="/groups", cls=f"text-blue-600 {BUTTON_SMALL} mr-2 hover:underline"),
-#                 A("Logout", href="/logout", cls=f"bg-red-500 text-white {BUTTON_SMALL} hover:bg-red-600"),
-#                 cls="flex items-center"
-#             ),
-#             cls=NAV_FLEX
-#         ),
-#         cls=NAV_CONTAINER
-#     )
+def dashboard_nav(user_name: str = "User"):
+    """Navigation for authenticated users"""
+    return Div(
+        Nav(
+            Ul(
+                Li(Strong(A("SplitWise", href="/user/", style="text-decoration: none;")))
+            ),
+            Ul(
+                Li(
+                    Details(
+                        Summary(user_name, style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background: var(--primary); color: white;"),
+                        Ul(
+                            Li(A("Profile", href="/user/profile")),
+                            Li(A("Logout", href="/user/logout", 
+                                hx_post="/user/logout", 
+                                hx_confirm="Are you sure you want to logout?"))
+                        ),
+                        cls="dropdown",
+                        style="position: relative;"
+                    )
+                )
+            ),
+            style='height: 60px; align-items: center;'
+        ),
+        cls="container"
+    )

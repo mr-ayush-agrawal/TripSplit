@@ -1,0 +1,1 @@
+FOOTER_CONTENT = "© 2025 SplitWise. Built with FastHTML."

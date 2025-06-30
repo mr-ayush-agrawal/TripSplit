@@ -6,7 +6,7 @@ def auth_layout(title, content, script = None):
             Title(f"{title} - SplitWise"),
             Meta(name="viewport", content="width=device-width, initial-scale=1"),
             Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"),
-            Link(rel="stylesheet", href="/static/style.css")
+            Link(rel="stylesheet", href="/client/static/style.css")
         ),
         Body(
             Main(
