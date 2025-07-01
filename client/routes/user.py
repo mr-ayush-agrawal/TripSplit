@@ -4,7 +4,10 @@ from fastapi.responses import RedirectResponse
 
 from client.pages.auth import login_page, signup_page
 from client.pages.user import user_dashboard_page
+from client.pages.profile import profile_page
+
 from client.static.user.dashboard import dashboard_styles
+from client.static.user.profile import profile_styles
 
 from shared.models.user import LoginRequest, NewUser
 
@@ -15,6 +18,8 @@ key = os.getenv('FASTHTML_SESSION_KEY')
 user_router, rt= fast_app(secret_key=key)
 
 backend = os.getenv('BACKEND_URL')
+
+
 
 @rt("/login")
 def get():
@@ -92,8 +97,16 @@ def user_home():
 
 @rt("/profile")
 def get():
-    return {
-        'data' : "profile page"
+    sample_profile_data =  {
+        "name": "John Doe",
+        "user_name": "johndoe",
+        "email": "john.doe@example.com",
+        "currency": "INR"
     }
+    profile_data = sample_profile_data
+    total_groups = 5  
+
+    return profile_page(profile_data, total_groups=profile_data.get("stats")), profile_styles()
+
 
 __all__ = ['user_router']

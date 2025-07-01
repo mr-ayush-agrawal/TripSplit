@@ -33,12 +33,13 @@ def dashboard_nav(user_name: str = "User"):
             Ul(
                 Li(
                     Details(
-                        Summary(user_name, style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background: var(--primary); color: white;"),
+                        Summary(
+                            user_name,
+                            style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background: var(--primary); color: white;"
+                        ),
                         Ul(
-                            Li(A("Profile", href="/user/profile")),
-                            Li(A("Logout", href="/user/logout", 
-                                hx_post="/user/logout", 
-                                hx_confirm="Are you sure you want to logout?"))
+                            Li(A("Profile", href="/user/profile", style="cursor: pointer;")),
+                            Li(A("Logout", onclick="showLogoutModal()", style="cursor: pointer;"))  # ✅ changed
                         ),
                         cls="dropdown",
                         style="position: relative;"

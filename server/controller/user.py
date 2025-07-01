@@ -102,6 +102,7 @@ def logout(response: Response, user : User):
 def get_profile(user : User):
     logging.info("Getting the user info")
     try:
+        user = user_collection.find_one({"user_name": user['user_name']})
         exclude_fields = {'password', '_id'}
         profile = {k: v for k, v in user.items() if k not in exclude_fields}
         return {
