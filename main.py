@@ -1,5 +1,6 @@
 from server.routes.user import user_router
 from server.routes.group import group_router
+import uvicorn
 
 import os
 from fastapi import FastAPI
@@ -20,4 +21,13 @@ def home():
     }
 
 if __name__ == '__main__':
-    run("main:app", host='localhost', port=8000, reload=True)
+    # run("main:app", host='localhost', port=8000, reload=True)
+    config = uvicorn.Config(
+        "main:app",
+        host="localhost",
+        port=8000,
+        reload=True,
+        # reload_excludes=["logs/*"]
+    )
+    server = uvicorn.Server(config)
+    server.run()

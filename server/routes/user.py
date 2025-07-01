@@ -5,6 +5,11 @@ from server.middleware.auth import is_logged_in
 
 user_router = APIRouter(tags=["Users"])
 
+
+@user_router.get('/')
+async def user(user=Depends(is_logged_in)):
+    return user_home(user)
+
 @user_router.post("/signup")
 async def user_signup(user: NewUser):
         return signup(user)

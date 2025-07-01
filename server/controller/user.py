@@ -7,11 +7,19 @@ from server.utils.logger import logging
 from server.utils.password_hash import hash_password,verify_password
 from server.utils.jwt_auth import create_access_token
 
-from server.utils import COOKIE_TIMER, LOGIN_COOKIE_NAME
+from shared.cookie import COOKIE_TIMER, LOGIN_COOKIE_NAME
 
 
 user_collection = database.get_user_collection()
 
+
+def user_home(user : User):
+    return {    
+        'status_code' : 200,
+        'data' : {
+            'user_name' : user['user_name']
+        }
+    }
 
 def signup(user: NewUser):
     try : 
@@ -72,9 +80,12 @@ def login(login_data : LoginRequest, response : Response):
             value=token,
             httponly=True,
             secure=False,  # Set to True in production with HTTPS
-            samesite="lax",  # or 'strict'/'none'
-            max_age=COOKIE_TIMER  # in seconds
+            samesite="lax",
+            max_age=COOKIE_TIMER,
+            domain="localhost",  # Add this for cross-port cookie sharing
+            path="/"  # Ensure cookie is available for all paths
         )
+
 
         logging.info(f'Login succesful for user : {user['user_name']}')
         return {"status_code": 200, "message": "Login successful"}
