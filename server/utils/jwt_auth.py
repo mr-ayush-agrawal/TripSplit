@@ -1,7 +1,7 @@
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta
-from server.utils import COOKIE_TIMER
+from shared.cookie import COOKIE_TIMER
 import os 
 from dotenv import load_dotenv
 load_dotenv()

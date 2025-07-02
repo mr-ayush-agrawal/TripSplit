@@ -27,7 +27,7 @@ if __name__ == '__main__':
         host="localhost",
         port=8000,
         reload=True,
-        # reload_excludes=["logs/*"]
+        reload_excludes=["logs/*"]
     )
     server = uvicorn.Server(config)
-    server.run()
+    server.run() 

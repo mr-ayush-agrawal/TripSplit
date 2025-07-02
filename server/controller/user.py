@@ -135,11 +135,12 @@ def update_info(newinfo : UpdateUserInfo, user: User):
 
         # Only update provided fields
         for field in ['name', 'email', 'currency']:
-            if newinfo.get(field):
-                update_fields[field] = newinfo[field]
+            value = getattr(newinfo, field)
+            if value is not None:
+                update_fields[field] = value
         if not update_fields:
             raise HTTPException(status_code=400, detail="No fields to update")
-        
+
         result = user_collection.update_one(
             {"user_name": user_name},
             {"$set": update_fields}
@@ -164,10 +165,10 @@ def update_password(newinfo: UpdatePassword, current_user: User):
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        if not verify_password(newinfo['old_password'], user['password']):
+        if not verify_password(newinfo.old_password, user['password']):
             raise HTTPException(status_code=401, detail="Incorrect old password")
         
-        hashed_new_password = hash_password(newinfo['new_password'])
+        hashed_new_password = hash_password(newinfo.new_password)
         user_collection.update_one(
             {"user_name": user_name},
             {"$set": {"password": hashed_new_password}}

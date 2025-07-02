@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Request
 from server.utils.jwt_auth import verify_token
-from server.utils import LOGIN_COOKIE_NAME
+from shared.cookie import LOGIN_COOKIE_NAME
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY")

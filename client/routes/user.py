@@ -10,8 +10,8 @@ from client.pages.profile import profile_page
 from client.static.user.dashboard import dashboard_styles
 from client.static.user.profile import profile_styles
 
-from shared.models.user import LoginRequest, NewUser
-from shared.cookie import COOKIE_TIMER, LOGIN_COOKIE_NAME
+from shared.models.user import LoginRequest, NewUser, UpdateUserInfo, UpdatePassword
+from shared.cookie import COOKIE_TIMER, LOGIN_COOKIE_NAME, COOKIE_PATH, COOKIE_DOMAIN
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -57,8 +57,8 @@ async def login_post(request: Request, email: str = None, user_name: str = None,
                     secure=False,
                     samesite="lax",
                     max_age=COOKIE_TIMER,
-                    domain="localhost",
-                    path="/"
+                    domain=COOKIE_DOMAIN,
+                    path=COOKIE_PATH
                 )
             
             return redirect_response
@@ -94,8 +94,33 @@ async def signup_post(name : str, email : str, user_name : str, password : str, 
         print(e)
         return signup_page(str(e))
 
+@rt('/logout')
+async def logout(request : Request):
+    try : 
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie : 
+            return RedirectResponse(url="/user/login", status_code=303)
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
 
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.get(f"{backend}/user/logout",  cookies=cookies)
 
+        if response.status_code == 200:
+            redirect = RedirectResponse(url="/user/login", status_code=303)
+            redirect.delete_cookie(
+                key=LOGIN_COOKIE_NAME,
+                domain=COOKIE_DOMAIN,  
+                path=COOKIE_PATH
+            )
+            return redirect
+        else:
+            error_message = response.json().get("detail", "Login failed")
+            return login_page(error_message) 
+        
+    except Exception as e : 
+        print(e)
+        return login_page(str(e))
+    
 @rt('/')
 async def user_home(request: Request):
     """User dashboard/home page"""
@@ -117,25 +142,100 @@ async def user_home(request: Request):
             ), dashboard_styles()
         else:
             error_message = response.json().get("detail", "Login failed")
-            return signup_page(error_message) 
+            return RedirectResponse(url="/user/", status_code=303)
 
     except Exception as e : 
         print(e)
-        return signup_page(str(e))
-
-
+        return login_page(str(e))
 
 @rt("/profile")
-def get():
-    sample_profile_data =  {
-        "name": "John Doe",
-        "user_name": "johndoe",
-        "email": "john.doe@example.com",
-        "currency": "INR"
-    }
-    profile_data = sample_profile_data 
+async def get(request : Request):
+    try : 
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+        
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.get(f"{backend}/user/profile",  cookies=cookies)
 
-    return profile_page(profile_data, total_groups=profile_data.get("stats")), profile_styles()
+        if response.status_code == 200:
+            profile_data = response.json().get("data", {})
+            return profile_page(profile_data, total_groups=profile_data.get("stats")), profile_styles()
+        
+        error_message = response.json().get("detail", "Could not fetch profile")
+        return login_page(error_message)
+
+    except Exception as e : 
+        print(e)
+        return login_page(str(e))
+
+@rt('/profile/update-personal', methods=["POST"])
+async def update_personal_info(request: Request, name: str = Form(...)):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        data = {"name": name}
+        data = UpdateUserInfo(**data)
+        data = data.model_dump()
+        async with httpx.AsyncClient() as client:
+            cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+            res = await client.patch(f"{backend}/user/update-info", json=data, cookies=cookies)
+
+        return RedirectResponse("/user/profile", status_code=303)
+
+    except Exception as e:
+        print("Personal Info Update Error:", e)
+        return RedirectResponse("/user/profile", status_code=303)
+
+@rt('/profile/update-account', methods=["POST"])
+async def update_account_info(request: Request, email: str = Form(...), currency: str = Form(...)):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+        
+        data = {"email": email, "currency": currency}
+        data = UpdateUserInfo(**data)
+        data = data.model_dump()
+        async with httpx.AsyncClient() as client:
+            cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+            res = await client.patch(f"{backend}/user/update-info", json=data, cookies= cookies)
+
+        return RedirectResponse("/user/profile", status_code=303)
+
+    except Exception as e:
+        print("Account Info Update Error:", e)
+        return RedirectResponse("/user/profile", status_code=303)
+
+@rt('/update-password', methods=["POST"])
+async def update_password(request : Request, old_password: str = Form(...), new_password : str = Form(...), confirm_password: str = Form(...)):
+    try:
+        if new_password != confirm_password:
+            raise ValueError("New passwords do not match.")
+
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        data = {"old_password": old_password, "new_password": new_password}
+        data = UpdatePassword(**data)
+        data = data.model_dump()
+        async with httpx.AsyncClient() as client:
+            cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+            res = await client.put(f"{backend}/user/update-password", json=data, cookies=cookies)
+
+        return RedirectResponse("/user/profile", status_code=303)
+
+    except Exception as e:
+        print("Password Change Error:", e)
+        return RedirectResponse("/user/profile", status_code=303)
+
+
+
+
 
 
 __all__ = ['user_router']

@@ -71,15 +71,15 @@ def password_change_modal():
                     style="border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;"
                 ),
                 Form(
-                    Label("Current Password", **{"for": "current_password"}),
-                    Input(type="password", name="current_password", required=True),
+                    Label("Current Password", **{"for": "old_password"}),
+                    Input(type="text", name="old_password", required=True),
                     
                     Label("New Password", **{"for": "new_password"}),
                     Input(type="password", name="new_password", required=True),
                     
                     Label("Confirm New Password", **{"for": "confirm_password"}),
-                    Input(type="password", name="new_password", required=True),
-                    
+                    Input(type="password", name="confirm_password", required=True),
+
                     Footer(
                         Div(
                             Button("Cancel", 
@@ -94,7 +94,7 @@ def password_change_modal():
                         ),
                         style="text-align: center; margin-top: 2rem;"
                     ),
-                    hx_post="/user/change-password",
+                    hx_post="/user/update-password",
                     hx_trigger="submit",
                     hx_target="body",
                     hx_swap="outerHTML",
@@ -141,13 +141,13 @@ def profile_modals(profile_data):
             modal_id="personal-info-modal",
             title="Edit Personal Information",
             fields=personal_fields,
-            action_url="/user/profile/personal"
+            action_url="/user/profile/update-personal"
         ),
         edit_modal(
             modal_id="account-info-modal", 
             title="Edit Account Information",
             fields=account_fields,
-            action_url="/user/profile/account"
+            action_url="/user/profile/update-account"
         ),
         password_change_modal()
     ]
