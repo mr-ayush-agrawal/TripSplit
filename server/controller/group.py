@@ -136,11 +136,13 @@ def get_all_groups(current_user: str):
             group_name = group.get("group_name", "Unnamed Group")
             balances = group.get("member_balances", {})
             user_balance = round(balances.get(username, 0.0), 2) 
+            members_count = len(group.get('members', []))
 
             user_groups.append({
                 "group_id": group_id,
                 "name": group_name,
-                "balance": user_balance
+                "balance": user_balance,
+                'members_count' : members_count
             })
         return{
             "status_code" : 200,

@@ -29,7 +29,7 @@ def action_cards():
                 dashboard_card(
                     title="My Groups",
                     description="View and manage all your expense groups. See balances, recent activities, and group members.",
-                    href="/group",
+                    href="/group/",
                     icon="👥",
                     button_text="View Groups"
                 ),
@@ -39,7 +39,7 @@ def action_cards():
                 dashboard_card(
                     title="Create Group",
                     description="Start a new expense group with friends, roommates, or colleagues. Split bills easily.",
-                    href="/group/create-group",
+                    href="/group/create",
                     icon="➕",
                     button_text="Create Group"
                 ),
