@@ -7,6 +7,10 @@ from client.pages.group import groups_list_page, create_group_page
 
 from client.static.group.group_style import groups_styles
 
+from client.controller.group import (
+    create_group_post, create_group_get, add_group_members_get, add_group_members_post
+)
+
 from shared.cookie import LOGIN_COOKIE_NAME
 
 from dotenv import load_dotenv
@@ -47,82 +51,34 @@ async def group_home(request : Request):
     except Exception as e:
         print(f"Error fetching groups: {e}")
         return groups_list_page([], str(e))
-
-@rt('/create')
-async def create_group_get(request: Request):
-    """Create group page - GET"""
-    try:
-        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
-        if not auth_cookie:
-            return RedirectResponse(url="/user/login", status_code=303)
-
-        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
-        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
-            user_response = await client.get(f"{backend}/user/", cookies=cookies)
-            if user_response.status_code != 200:
-                return RedirectResponse(url="/user/login", status_code=303)
-            
-            user_data = user_response.json()
-            username = user_data.get("data", {}).get("user_name", "User")
-
-        return create_group_page(username=username), groups_styles()
-
-    except Exception as e:
-        print(f"Error in create group get: {e}")
-        return RedirectResponse(url="/user/login", status_code=303)
     
 @rt('/create')
-async def create_group_post(request: Request, group_name: str, group_description: str = None, base_currency: str = "INR"):
-    """Create group page - POST"""
-    try:
-        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
-        if not auth_cookie:
-            return RedirectResponse(url="/user/login", status_code=303)
+async def create_group(request: Request, group_name: str = None, group_description: str = None, base_currency: str = "INR"):
+    if request.method == 'POST':
+        return await create_group_post(request, group_name, group_description, base_currency)
+    elif request.method == 'GET' :
+        return await create_group_get(request)
 
-        # Validate inputs
-        if not group_name or len(group_name.strip()) == 0:
-            return create_group_page(error_message="Group name is required"), groups_styles()
-        
-        if len(group_name.strip()) > 50:
-            return create_group_page(error_message="Group name must be less than 50 characters"), groups_styles()
-
-        # Prepare data
-        group_data = {
-            "group_name": group_name.strip(),
-            "group_description": group_description.strip() if group_description else None,
-            "base_currency": base_currency
-        }
-
-        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
-        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
-            # Get username for error display
-            user_response = await client.get(f"{backend}/user/", cookies=cookies)
-            username = "User"
-            if user_response.status_code == 200:
-                user_data = user_response.json()
-                username = user_data.get("data", {}).get("user_name", "User")
-            
-            # Create group
-            response = await client.post(f"{backend}/group/create-group", json=group_data, cookies=cookies)
-
-        if response.status_code == 200:
-            response_data = response.json()
-            group_id = response_data.get("group_id")
-            # TODO: Redirect to add members page when implemented
-            # For now, redirect to groups list
-            return RedirectResponse(url="/group/", status_code=303)
-        else:
-            error_message = response.json().get("detail", "Failed to create group")
-            return create_group_page(username=username, error_message=error_message), groups_styles()
-
-    except Exception as e:
-        print(f"Error in create group post: {e}")
-        return create_group_page(error_message=str(e)), groups_styles()
-
+@rt('/{group_id}/add-members')
+async def add_members(request: Request, group_id: str):
+    if request.method == 'POST':
+        return await add_group_members_post(request, group_id)
+    elif request.method == 'GET' :
+        return await add_group_members_get(request, group_id)
 
 @rt('/{group_id}')
 async def group_details(request: Request, group_id: str):
     """Group details page - TODO: Implement"""
+    # flash_msg = request.cookies.get("flash_msg")
+    # response = group_detail_page(group_id=group_id, success_msg=flash_msg), group_styles()
+
+    # if flash_msg:
+    #     # Clear the flash message so it's not shown again
+    #     final_response = HTMLResponse(content=str(response[0]))
+    #     final_response.delete_cookie("flash_msg")
+    #     return final_response, response[1]
+
+    # return response
     return f"Group details page for {group_id} - Coming soon!"
 
 @rt('/{group_id}/expense')
