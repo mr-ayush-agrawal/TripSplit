@@ -2,12 +2,13 @@ from fasthtml.common import *
 
 def create_expense_card(expense, group_id, base_currency):
     """Create individual expense card"""
-    print(type(expense), expense)
     expense_id = expense.get("expense_id", "")
     title = expense.get("title", "Untitled Expense")
     description = expense.get("description", "")
     amount = expense.get("amount", 0.0)
-    currency = expense.get("currency", base_currency)
+    currency = expense.get("currency")
+    if not currency:
+        currency = base_currency
     paid_by_user = expense.get("paid_by_user", 0.0)
     borrowed_by_user = expense.get("borrowed_by_user", 0.0)
     date = expense.get("date", "")
@@ -27,7 +28,7 @@ def create_expense_card(expense, group_id, base_currency):
     
     # Determine balance display
     balance_class = "expense-positive" if user_net > 0 else "expense-negative" if user_net < 0 else "expense-zero"
-    balance_text = f"you lent {abs(user_net):.2f}" if user_net > 0 else f"you owe {abs(user_net):.2f}" if user_net < 0 else "settled"
+    balance_text = f"you lent {currency} {abs(user_net):.2f}" if user_net > 0 else f"you owe {currency} {abs(user_net):.2f}" if user_net < 0 else "settled"
     
     return A(
         Div(
@@ -47,6 +48,6 @@ def create_expense_card(expense, group_id, base_currency):
             ),
             cls="expense-card-inner"
         ),
-        href=f"/group/{group_id}/{expense_id}",
+        href=f"/group/{group_id}/expense/{expense_id}",
         cls="expense-card"
     )

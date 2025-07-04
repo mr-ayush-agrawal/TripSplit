@@ -1,17 +1,13 @@
-import os, httpx
-from fasthtml.common import fast_app, Form
-from fastapi.responses import RedirectResponse
+import os
+from fasthtml.common import fast_app
 from fastapi import Request
 
-from client.pages.group import groups_list_page, create_group_page
-
-from client.static.group.group_style import groups_styles
 
 from client.controller.group import (
-    create_group_post, create_group_get, add_group_members_get, add_group_members_post
+    create_group_post, create_group_get,
+    add_group_members_get, add_group_members_post,
+    get_group_home,get_single_group_detail
 )
-from client.pages.group_detail import single_group_page
-from client.pages.error_pages import group_not_found, group_access_denied
 
 from shared.cookie import LOGIN_COOKIE_NAME
 
@@ -25,34 +21,7 @@ backend = os.getenv('BACKEND_URL')
 
 @rt('/')
 async def group_home(request : Request):
-    try:
-        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
-        if not auth_cookie:
-            return RedirectResponse(url="/user/login", status_code=303)
-
-        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
-        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
-            user_response = await client.get(f"{backend}/user/", cookies=cookies)
-            if user_response.status_code != 200:
-                return RedirectResponse(url="/user/login", status_code=303)
-
-            user_data = user_response.json()
-            username = user_data.get("data", {}).get("user_name", "User")
-            groups_response = await client.get(f"{backend}/group/", cookies=cookies)
-            if groups_response.status_code == 200:
-                groups_data = groups_response.json()
-                user_groups = groups_data.get("user_groups", [])
-            else:
-                user_groups = []
-
-        return groups_list_page(
-            username=username,
-            user_groups=user_groups
-        ), groups_styles()
-
-    except Exception as e:
-        print(f"Error fetching groups: {e}")
-        return groups_list_page([], str(e))
+    return await get_group_home(request)
     
 @rt('/create')
 async def create_group(request: Request, group_name: str = None, group_description: str = None, base_currency: str = "INR"):
@@ -71,60 +40,9 @@ async def add_members(request: Request, group_id: str):
 @rt('/{group_id}')
 async def group_details(request: Request, group_id: str):
     """Single group view - displays group details, members, and expenses"""
-    try:
-        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
-        if not auth_cookie:
-            return RedirectResponse(url="/user/login", status_code=303)
+    return await get_single_group_detail(request, group_id)
 
-        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
-        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
-            # Get current user info
-            user_response = await client.get(f"{backend}/user/", cookies=cookies)
-            if user_response.status_code != 200:
-                return RedirectResponse(url="/user/login", status_code=303)
-            
-            user_data = user_response.json()
-            username = user_data.get("data", {}).get("user_name", "User")
-            
-            # Get group info
-            group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
-            if group_response.status_code != 200:
-                if group_response.status_code == 404:
-                    return group_not_found(username), groups_styles()
-                elif group_response.status_code == 403:
-                    return group_access_denied(username), groups_styles()
-                else:
-                    return RedirectResponse(url="/group/", status_code=303)
-            
-            group_data = group_response.json().get("data", {})
-            
-            # Get all expenses for the group
-            expenses_response = await client.get(f"{backend}/group/{group_id}/", cookies=cookies)
-            expenses_data = {}
-            if expenses_response.status_code == 200:
-                raw_data = expenses_response.json().get("data", {})
-                expense_ids = raw_data.get("expenses", [])
 
-            full_expenses = []
-            for exp_id in expense_ids:
-                resp = await client.get(f"{backend}/expense/{exp_id}", cookies=cookies)
-                if resp.status_code == 200:
-                    exp_data = resp.json().get("data")
-                    if exp_data:
-                        full_expenses.append(exp_data)
-    
-            raw_data["expenses"] = full_expenses
-            expenses_data = raw_data
-
-        return single_group_page(
-            username=username,
-            group_data=group_data,
-            expenses_data=expenses_data
-        ), groups_styles()
-
-    except Exception as e:
-        print(f"Error in single group view: {e}")
-        return RedirectResponse(url="/group/", status_code=303)
 
 @rt('/{group_id}/add-expense')
 async def add_expense(request: Request, group_id: str):

@@ -10,7 +10,7 @@ def expense_list(group_data, expenses_data):
     
     # User's net balance summary
     net_balance_class = "net-positive" if user_net_amount > 0 else "net-negative" if user_net_amount < 0 else "net-zero"
-    net_balance_text = f"You are owed {abs(user_net_amount):.2f}" if user_net_amount > 0 else f"You owe {abs(user_net_amount):.2f}" if user_net_amount < 0 else "You are settled up"
+    net_balance_text = f"You are owed {base_currency} {abs(user_net_amount):.2f}" if user_net_amount > 0 else f"You owe {base_currency} {abs(user_net_amount):.2f}" if user_net_amount < 0 else "You are settled up"
     
     # Create expense cards
     expense_cards = []
@@ -34,7 +34,7 @@ def expense_list(group_data, expenses_data):
         Div(
             H2("Expenses", cls="section-title"),
             Div(
-                Span(f"{base_currency} {net_balance_text}", cls=f"net-balance {net_balance_class}"),
+                Span(f"{net_balance_text}", cls=f"net-balance {net_balance_class}"),
                 cls="user-balance-summary"
             ),
             cls="expenses-header"

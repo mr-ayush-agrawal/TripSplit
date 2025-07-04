@@ -74,7 +74,7 @@ def members_section(group_data, is_owner):
         member_item = Div(
             Div(
                 Div(member, cls="member-name"),
-                Div("👑 Owner" if member == owner_username else "", cls="member-role"),
+                Div("👑 Admin" if member == owner_username else "", cls="member-role"),
                 cls="member-info"
             ),
             Div(

@@ -4,6 +4,8 @@ from fastapi import Request
 
 from client.pages.group import groups_list_page, create_group_page
 from client.pages.add_group_member import add_members_page
+from client.pages.group_detail import single_group_page
+from client.pages.error_pages import group_not_found, group_access_denied
 
 from client.static.group.group_style import groups_styles
 
@@ -165,6 +167,84 @@ async def add_group_members_post(request: Request, group_id: str):
     except Exception as e:
         print(f"Error in add group members post: {e}")
         return await add_group_members_get(request, group_id, error_message="An unexpected error occurred")
+
+async def get_group_home(request : Request):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            user_response = await client.get(f"{backend}/user/", cookies=cookies)
+            if user_response.status_code != 200:
+                return RedirectResponse(url="/user/login", status_code=303)
+
+            user_data = user_response.json()
+            username = user_data.get("data", {}).get("user_name", "User")
+            groups_response = await client.get(f"{backend}/group/", cookies=cookies)
+            if groups_response.status_code == 200:
+                groups_data = groups_response.json()
+                user_groups = groups_data.get("user_groups", [])
+            else:
+                user_groups = []
+
+        return groups_list_page(
+            username=username,
+            user_groups=user_groups
+        ), groups_styles()
+
+    except Exception as e:
+        print(f"Error fetching groups: {e}")
+        return groups_list_page([], str(e))
+
+async def get_single_group_detail(request : Request, group_id : str):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            # Get current user info
+            user_response = await client.get(f"{backend}/user/", cookies=cookies)
+            if user_response.status_code != 200:
+                return RedirectResponse(url="/user/login", status_code=303)
+            
+            user_data = user_response.json()
+            username = user_data.get("data", {}).get("user_name", "User")
+            
+            # Get group info
+            group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
+            if group_response.status_code != 200:
+                if group_response.status_code == 404:
+                    return group_not_found(username), groups_styles()
+                elif group_response.status_code == 403:
+                    return group_access_denied(username), groups_styles()
+                else:
+                    return RedirectResponse(url="/group/", status_code=303)
+            
+            group_data = group_response.json().get("data", {})
+            
+            # Get all expenses for the group
+            expenses_response = await client.get(f"{backend}/group/{group_id}/expense", cookies=cookies)
+            expenses_data = {}
+            if expenses_response.status_code == 200:
+                raw_data = expenses_response.json().get("data", {})
+                expenses = raw_data.get("expenses", [])
+    
+            raw_data["expenses"] = expenses
+            expenses_data = raw_data
+
+        return single_group_page(
+            username=username,
+            group_data=group_data,
+            expenses_data=expenses_data
+        ), groups_styles()
+
+    except Exception as e:
+        print(f"Error in single group view: {e}")
+        return RedirectResponse(url="/group/", status_code=303)
 
 
 
