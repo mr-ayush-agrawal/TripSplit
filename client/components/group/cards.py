@@ -37,7 +37,7 @@ def group_card(name, group_id, balance=0.0, member_count=0, recent_activity="No 
             # Right: Buttons
             Div(
                 A("View", href=f"/group/{group_id}", role="button", cls="btn-primary"),
-                A("Add", href=f"/group/{group_id}/expense", role="button", cls="btn-outline"),
+                A("Add", href=f"/group/{group_id}/add-expense", role="button", cls="btn-outline"),
                 cls="group-right"
             ),
             cls="group-header"
