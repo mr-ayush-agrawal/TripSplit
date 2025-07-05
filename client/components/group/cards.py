@@ -52,3 +52,48 @@ def group_card(name, group_id, balance=0.0, member_count=0, recent_activity="No 
         cls="group-card",
         style="padding: 1rem 1.5rem; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 1rem;"
     )
+
+def members_overview_cards(members, member_balances, base_currency, owner_username):
+    """Display overview cards for all members"""
+    cards = []
+    
+    for member in members:
+        balance = member_balances.get(member, 0.0)
+        balance_class = "balance-positive" if balance > 0 else "balance-negative" if balance < 0 else "balance-zero"
+        balance_text = f"owes {base_currency} {abs(balance):.2f}" if balance < 0 else f"owed {base_currency} {balance:.2f}" if balance > 0 else "Settled"
+        
+        # Status indicator
+        if member == owner_username:
+            status_badge = Span("👑 Admin", cls="badge badge-owner")
+            if len([m for m in members if m != owner_username]) > 0:
+                # There are other members, owner cannot be removed
+                removable_status = Span("Remove other members first", cls="status-warning")
+            else:
+                # Owner is the only member, can be removed
+                removable_status = Span("Can be removed (last member)", cls="status-success") if balance == 0 else Span("Must settle balance first", cls="status-warning")
+        elif balance != 0:
+            status_badge = Span("💰 Has balance", cls="badge badge-balance")
+            removable_status = Span("Must settle balance first", cls="status-warning")
+        else:
+            status_badge = Span("✅ Settled", cls="badge badge-settled")
+            removable_status = Span("Can be removed", cls="status-success")
+        
+        card = Div(
+            Div(
+                Div(
+                    Div(member, cls="member-name"),
+                    status_badge,
+                    cls="member-header"
+                ),
+                Div(
+                    Div(f"{balance_text}", cls=f"balance {balance_class}"),
+                    removable_status,
+                    cls="member-details"
+                ),
+                cls="member-info"
+            ),
+            cls="member-card"
+        )
+        cards.append(card)
+    
+    return cards

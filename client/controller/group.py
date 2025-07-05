@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi import Request
 
 from client.pages.group import groups_list_page, create_group_page
-from client.pages.add_group_member import add_members_page
+from client.pages.group_member import add_members_page, remove_members_page
 from client.pages.group_detail import single_group_page
 from client.pages.error_pages import group_not_found, group_access_denied
 
@@ -246,7 +246,89 @@ async def get_single_group_detail(request : Request, group_id : str):
         print(f"Error in single group view: {e}")
         return RedirectResponse(url="/group/", status_code=303)
 
+async def remove_group_members_get(request: Request, group_id: str, error_message: str = None, success_message: str = None):
+    """Get remove members page"""
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
 
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            # Get user info
+            user_response = await client.get(f"{backend}/user/", cookies=cookies)
+            if user_response.status_code != 200:
+                return RedirectResponse(url="/user/login", status_code=303)
+            
+            user_data = user_response.json()
+            username = user_data.get("data", {}).get("user_name", "User")
+            
+            # Get group info
+            group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
+            if group_response.status_code != 200:
+                return RedirectResponse(url="/group/", status_code=303)
+            
+            group_data = group_response.json().get("data", {})
+            
+            # Check if user is owner
+            if group_data.get("owner_username") != username:
+                return RedirectResponse(url=f"/group/{group_id}", status_code=303)
+
+        return remove_members_page(
+            username=username, 
+            group_data=group_data, 
+            error_message=error_message,
+            success_message=success_message
+        ), groups_styles()
+
+    except Exception as e:
+        print(f"Error in remove group members get: {e}")
+        return RedirectResponse(url="/group/", status_code=303)
+
+async def remove_group_members_post(request: Request, group_id: str):
+    """Handle member removal"""
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        # Get form data
+        form_data = await request.form()
+        member_to_remove = form_data.get("member_username")
+        
+        if not member_to_remove:
+            return await remove_group_members_get(
+                request, group_id, 
+                error_message="Please select a member to remove"
+            )
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            # Remove member via API
+            remove_response = await client.delete(
+                f"{backend}/group/{group_id}/remove-member/{member_to_remove}",
+                cookies=cookies
+            )
+            
+            if remove_response.status_code == 200:
+                return await remove_group_members_get(
+                    request, group_id,
+                    success_message=f"Successfully removed {member_to_remove} from the group"
+                )
+            else:
+                error_data = remove_response.json()
+                error_message = error_data.get("detail", "Failed to remove member")
+                return await remove_group_members_get(
+                    request, group_id,
+                    error_message=error_message
+                )
+
+    except Exception as e:
+        print(f"Error in remove group members post: {e}")
+        return await remove_group_members_get(
+            request, group_id,
+            error_message="An error occurred while removing the member"
+        )
 
 
 

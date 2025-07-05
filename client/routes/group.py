@@ -2,15 +2,12 @@ import os
 from fasthtml.common import fast_app
 from fastapi import Request
 
-
 from client.controller.group import (
     create_group_post, create_group_get,
     add_group_members_get, add_group_members_post,
-    get_group_home,get_single_group_detail
+    get_group_home, get_single_group_detail,
+    remove_group_members_get, remove_group_members_post
 )
-
-from shared.cookie import LOGIN_COOKIE_NAME
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -42,6 +39,13 @@ async def group_details(request: Request, group_id: str):
     """Single group view - displays group details, members, and expenses"""
     return await get_single_group_detail(request, group_id)
 
+@rt('/{group_id}/remove-members')
+async def add_expense(request: Request, group_id: str):
+    """Remove members page"""
+    if request.method == 'POST':
+        return await remove_group_members_post(request, group_id)
+    elif request.method == 'GET':
+        return await remove_group_members_get(request, group_id)
 
 
 @rt('/{group_id}/add-expense')
@@ -53,8 +57,3 @@ async def add_expense(request: Request, group_id: str):
 async def add_expense(request: Request, group_id: str):
     """Add expense page - TODO: Implement"""
     return f"Add Simplified debts for group {group_id} - Coming soon!"
-
-@rt('/{group_id}/remove-members')
-async def add_expense(request: Request, group_id: str):
-    """Add expense page - TODO: Implement"""
-    return f"Add Remove members for group {group_id} - Coming soon!"

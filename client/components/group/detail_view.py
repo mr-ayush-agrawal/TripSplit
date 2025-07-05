@@ -69,7 +69,7 @@ def members_section(group_data, is_owner):
     for member in members:
         balance = member_balances.get(member, 0.0)
         balance_class = "balance-positive" if balance > 0 else "balance-negative" if balance < 0 else "balance-zero"
-        balance_text = f"owes {abs(balance):.2f}" if balance < 0 else f"owed {balance:.2f}" if balance > 0 else "settled"
+        balance_text = f"owes {base_currency} {abs(balance):.2f}" if balance < 0 else f"owed {base_currency} {balance:.2f}" if balance > 0 else "Settled"
         
         member_item = Div(
             Div(
@@ -78,7 +78,7 @@ def members_section(group_data, is_owner):
                 cls="member-info"
             ),
             Div(
-                Div(f"{base_currency} {balance_text}", cls=f"member-balance {balance_class}"),
+                Div(f"{balance_text}", cls=f"member-balance {balance_class}"),
                 cls="member-balance-container"
             ),
             cls="member-item"
