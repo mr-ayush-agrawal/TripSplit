@@ -1,5 +1,6 @@
 from fasthtml.common import *
 from client.static.user.dropdown import dropdown_styles
+from client.static.user.logout_script import logout_script
 from client.components.navbar import dashboard_nav
 from client.components.auth.logout_model import logout_modal
 from client.components import FOOTER_CONTENT
@@ -24,19 +25,7 @@ def dashboard_layout( content, title = 'Welcome', username="User"):
                 style="text-align: center; padding: 2rem 0; margin-top: auto;"
             ),
             logout_modal(),
-            Script("""
-                function showLogoutModal() {
-                    document.getElementById('logoutModal').style.display = 'block';
-                }
-
-                function hideLogoutModal() {
-                    document.getElementById('logoutModal').style.display = 'none';
-                }
-
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') hideLogoutModal();
-                });
-            """),
+            logout_script(),
             style="display: flex; flex-direction: column; min-height: 100vh;"
         )
     )

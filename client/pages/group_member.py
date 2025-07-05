@@ -39,19 +39,23 @@ def remove_members_page(username="User", group_data=None, error_message=None, su
     base_currency = group_data.get("base_currency", "INR")
     owner_username = group_data.get("owner_username", "")
     
-    # Filter out the owner from removable members
     all_members = members.copy()
     other_members = [m for m in members if m != owner_username]
 
-    # If owner is the only member, they can be removed
-    # If there are other members, owner cannot be removed
+    # First, determine who can be considered for removal based on group hierarchy
     if len(other_members) == 0:
-        # Owner is the only member, they can be removed
-        removable_members = [owner_username]
+        # Owner is the only member, they can be considered for removal
+        candidates_for_removal = [owner_username]
     else:
         # There are other members, owner cannot be removed yet
-        removable_members = other_members
+        candidates_for_removal = other_members
 
+    # Now filter candidates by balance - only members with zero balance can actually be removed
+    removable_members = []
+    for member in candidates_for_removal:
+        balance = member_balances.get(member, 0.0)
+        if round(balance, 2) == 0.0:
+            removable_members.append(member)
     
     content = Div(
         # Header

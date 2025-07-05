@@ -1,6 +1,6 @@
 from fasthtml.common import *
 
-def create_expense_card(expense, group_id, base_currency):
+def group_expense_card(expense, group_id, base_currency):
     """Create individual expense card"""
     expense_id = expense.get("expense_id", "")
     title = expense.get("title", "Untitled Expense")
@@ -50,4 +50,67 @@ def create_expense_card(expense, group_id, base_currency):
         ),
         href=f"/group/{group_id}/expense/{expense_id}",
         cls="expense-card"
+    )
+
+
+def expense_summary_card(expense: dict, user_amount: float, group_currency = str):
+    """
+    Summary card showing total amount and user's balance
+    """
+    total_amount = expense.get('amount', 0.0)
+    original_amount = expense.get('amount_original', 0.0)
+    original_currency = expense.get('original_currency')
+    if not original_currency:
+        original_currency = 'INR'
+    exchange_rate = expense.get('exchange_rate', 1.0)
+    
+    return Div(
+        Div(
+            H3("Expense Summary", cls="card-title"),
+            cls="card-header"
+        ),
+        
+        Div(
+            # Total amount
+            Div(
+                Span("Total Amount", cls="amount-label"),
+                Div(
+                    Span(f"{group_currency} {total_amount:.2f}", cls="amount-primary"),
+                    Span(f"({original_currency} {original_amount:.2f})", cls="amount-secondary") if exchange_rate != 1.0 else None,
+                    cls="amount-display"
+                ),
+                cls="amount-item"
+            ),
+            
+            # Exchange rate (only show if currencies are different)
+            Div(
+                Span("Exchange Rate", cls="amount-label"),
+                Div(
+                    Span(f"1 {original_currency} = {exchange_rate:.2f} {group_currency}", cls="exchange-rate-display"),
+                    cls="amount-display"
+                ),
+                cls="amount-item exchange-rate-item"
+            ) if original_currency != group_currency else None,
+            
+            # User's balance
+            Div(
+                Span("Your Balance", cls="amount-label"),
+                Div(
+                    Span(
+                        f"{original_currency} {abs(user_amount):.2f}",
+                        cls=f"amount-primary {'text-success' if user_amount > 0 else 'text-danger' if user_amount < 0 else 'text-muted'}"
+                    ),
+                    Span(
+                        "You are owed" if user_amount > 0 else "You owe" if user_amount < 0 else "Settled",
+                        cls="amount-secondary"
+                    ),
+                    cls="amount-display"
+                ),
+                cls="amount-item"
+            ),
+            
+            cls="summary-content"
+        ),
+        
+        cls="expense-summary-card card"
     )

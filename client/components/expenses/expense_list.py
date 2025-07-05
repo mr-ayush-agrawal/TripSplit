@@ -1,5 +1,5 @@
 from fasthtml.common import *
-from client.components.expenses.card import create_expense_card
+from client.components.expenses.card import group_expense_card
 
 def expense_list(group_data, expenses_data):
     """Expenses section with expense cards"""
@@ -15,7 +15,7 @@ def expense_list(group_data, expenses_data):
     # Create expense cards
     expense_cards = []
     for expense in expenses:
-        expense_card = create_expense_card(expense, group_id, base_currency)
+        expense_card = group_expense_card(expense, group_id, base_currency)
         expense_cards.append(expense_card)
     
     # Empty state
