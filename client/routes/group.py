@@ -7,7 +7,7 @@ from client.controller.group import (
     add_group_members_get, add_group_members_post,
     get_group_home, get_single_group_detail,
     remove_group_members_get, remove_group_members_post,
-    add_expense_to_group
+    get_add_expense, handle_add_expense
 )
 from dotenv import load_dotenv
 load_dotenv()
@@ -50,10 +50,10 @@ async def add_expense(request: Request, group_id: str):
 
 @rt('/{group_id}/add-expense')
 async def add_expense(request: Request, group_id: str):
-        # if request.method == 'POST':
-        #     return await 
-        # elif request.method == 'GET':
-        return await add_expense_to_group(request, group_id)
+        if request.method == 'POST':
+            return await handle_add_expense(request, group_id)
+        elif request.method == 'GET':
+            return await get_add_expense(request, group_id)
 
 
 

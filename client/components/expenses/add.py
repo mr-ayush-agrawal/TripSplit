@@ -28,8 +28,6 @@ def expense_form(members, base_currency):
         cls="expense-form"
     )
 
-
-
 def basic_expense_fields(base_currency):
     """Basic expense information fields with two properly structured rows"""
     return Div(
@@ -157,7 +155,6 @@ def paid_by_section(members):
         ),
         cls="paid-by-section"
     )
-
 def split_by_section(members):
     """Split by section with different splitting options"""
     return Div(
@@ -254,7 +251,6 @@ def split_by_section(members):
         cls="split-by-section"
     )
 
-
 def success_popup():
     """Success popup modal"""
     return Div(
@@ -293,6 +289,3 @@ def error_popup():
         id="error-popup",
         cls="popup-overlay hidden"
     )
-
-
-

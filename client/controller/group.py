@@ -1,4 +1,4 @@
-import os, httpx
+import os, httpx, json
 from fastapi.responses import RedirectResponse
 from fastapi import Request
 
@@ -332,7 +332,7 @@ async def remove_group_members_post(request: Request, group_id: str):
             error_message="An error occurred while removing the member"
         )
 
-async def add_expense_to_group(request: Request, group_id: str):
+async def get_add_expense(request: Request, group_id: str):
     """Add expense page with form"""
     try:
         auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
@@ -370,6 +370,44 @@ async def add_expense_to_group(request: Request, group_id: str):
         print(f"Error in add expense page: {e}")
         return RedirectResponse(url="/group/", status_code=303)
 
+async def handle_add_expense(request: Request, group_id: str):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
 
+        form_data = await request.form()
+        
+        # Process form data
+        expense_data = {
+            "title": form_data.get("title"),
+            "description": form_data.get("description", ""),
+            "amount_original": float(form_data.get("amount", 0)),
+            "original_currency": form_data.get("currency"),
+            "exchange_rate": float(form_data.get("exchange_rate", 1)),
+            "paid_by_original": json.loads(form_data.get("paid_by", "{}")),
+            "borrowed_by_original": json.loads(form_data.get("borrowed_by", "{}"))
+        }
 
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.post(
+                f"{backend}/group/{group_id}/expense/add-expense",
+                json=expense_data,
+                cookies=cookies
+            )
+            
+            if response.status_code == 200:
+                # Return success page with popup
+                # return await get_add_expense_page_with_success(request, group_id, get_add_expense)
+                return RedirectResponse(url=f"/group/{group_id}", status_code=303)
+            else:
+                # Return error page
+                # return await get_add_expense_page_with_error(request, group_id, response.text, get_add_expense)
+                return RedirectResponse(url=f"/group/{group_id}", status_code=303)
+
+    except Exception as e:
+        print(f"Error submitting expense: {e}")
+        # return await get_add_expense_page_with_error(request, group_id, str(e), get_add_expense)
+        return RedirectResponse(url=f"/group/{group_id}", status_code=303)
 
