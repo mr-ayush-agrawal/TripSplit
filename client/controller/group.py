@@ -6,8 +6,10 @@ from client.pages.group import groups_list_page, create_group_page
 from client.pages.group_member import add_members_page, remove_members_page
 from client.pages.group_detail import single_group_page
 from client.pages.error_pages import group_not_found, group_access_denied
+from client.pages.expenses import add_expense_page
 
 from client.static.group.group_style import groups_styles
+from client.static.expense.add_style import add_expense_styles
 
 from shared.cookie import LOGIN_COOKIE_NAME
 
@@ -330,6 +332,43 @@ async def remove_group_members_post(request: Request, group_id: str):
             error_message="An error occurred while removing the member"
         )
 
+async def add_expense_to_group(request: Request, group_id: str):
+    """Add expense page with form"""
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            user_response = await client.get(f"{backend}/user/", cookies=cookies)
+            if user_response.status_code != 200:
+                return RedirectResponse(url="/user/login", status_code=303)
+            
+            user_data = user_response.json()
+            username = user_data.get("data", {}).get("user_name", "User")
+            
+            # Get group info
+            group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
+            if group_response.status_code != 200:
+                if group_response.status_code == 404:
+                    return group_not_found(username), groups_styles()
+                elif group_response.status_code == 403:
+                    return group_access_denied(username), groups_styles()
+                else:
+                    return RedirectResponse(url="/group/", status_code=303)
+            
+            group_data = group_response.json().get("data", {})
+
+        return add_expense_page(
+            username=username,
+            group_data=group_data,
+            group_id=group_id
+        ), add_expense_styles()
+
+    except Exception as e:
+        print(f"Error in add expense page: {e}")
+        return RedirectResponse(url="/group/", status_code=303)
 
 
 

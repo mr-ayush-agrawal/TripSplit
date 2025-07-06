@@ -41,7 +41,6 @@ def expense_header(expense: dict, username: str, group_data: dict):
         cls="expense-header"
     )
 
-
 def expense_members_breakdown(expense: dict, group_data: dict):
     """
     Detailed breakdown of each member's involvement
@@ -85,7 +84,6 @@ def expense_members_breakdown(expense: dict, group_data: dict):
         
         cls="members-breakdown-card card"
     )
-
 
 def member_row(member: str, paid_by: dict, borrowed_by: dict):
     """
@@ -178,3 +176,13 @@ def expense_actions_buttons(expense: dict, username: str):
         
         cls="expense-actions-inline"
     )
+
+def add_expense_header(group_data, group_id):
+    """Header section for add expense page"""
+    return Div(
+        Div(
+            A(Button("← Back to Group", onclick=f"window.location.href='/group/{group_id}'", cls="back-btn"))
+        ),
+        cls="add-expense-header"
+    )
+
