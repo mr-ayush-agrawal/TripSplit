@@ -32,7 +32,6 @@ def empty_groups_state():
         )
     )
 
-
 def groups_header(total_groups, total_balance):
     """Header section with stats and create button side by side"""
     # balance_color = "var(--color)" if total_balance >= 0 else "var(--del-color)"
@@ -82,4 +81,15 @@ def groups_header(total_groups, total_balance):
             style="margin-bottom: 2rem;"
         ),
         style="width: 100%;" 
+    )
+
+def simplified_debts_header(group_data, group_id):
+    """Header section for simplified debts page"""
+    return Div(
+        A(Button("← Back to Group", onclick=f"window.location.href='/group/{group_id}'", cls="back-btn")),  
+        Div(
+            H1(f"{group_data.get('group_name', 'Group')} - Simplified Debts"),
+            cls="header-title"
+        ),
+        cls="simplified-debts-header"
     )

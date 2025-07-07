@@ -7,9 +7,11 @@ from client.pages.group_member import add_members_page, remove_members_page
 from client.pages.group_detail import single_group_page
 from client.pages.error_pages import group_not_found, group_access_denied
 from client.pages.expenses import add_expense_page
+from client.pages.simplified_debts import simplified_debts_page
 
 from client.static.group.group_style import groups_styles
 from client.static.expense.add_style import add_expense_styles
+from client.static.group.simplify import simplified_debts_styles
 
 from shared.cookie import LOGIN_COOKIE_NAME
 
@@ -410,4 +412,46 @@ async def handle_add_expense(request: Request, group_id: str):
         print(f"Error submitting expense: {e}")
         # return await get_add_expense_page_with_error(request, group_id, str(e), get_add_expense)
         return RedirectResponse(url=f"/group/{group_id}", status_code=303)
+
+async def get_simplified_debts_page(request: Request, group_id: str):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            # Get current user info
+            user_response = await client.get(f"{backend}/user/", cookies=cookies)
+            if user_response.status_code != 200:
+                return RedirectResponse(url="/user/login", status_code=303)
+            
+            user_data = user_response.json()
+            username = user_data.get("data", {}).get("user_name", "User")
+            
+            # Get group info
+            group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
+            if group_response.status_code != 200:
+                return RedirectResponse(url="/group/", status_code=303)
+            
+            group_data = group_response.json().get("data", {})
+            
+            # Get simplified debts
+            debts_response = await client.get(f"{backend}/group/{group_id}/simplified", cookies=cookies)
+            if debts_response.status_code != 200:
+                return RedirectResponse(url="/group/", status_code=303)
+            
+            debts_data = debts_response.json()
+
+        return simplified_debts_page(
+            username=username,
+            group_data=group_data,
+            debts_data=debts_data,
+            group_id=group_id
+        ), simplified_debts_styles()
+
+    except Exception as e:
+        print(f"Error in simplified debts view: {e}")
+        return RedirectResponse(url="/group/", status_code=303)
+
 

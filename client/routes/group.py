@@ -7,7 +7,7 @@ from client.controller.group import (
     add_group_members_get, add_group_members_post,
     get_group_home, get_single_group_detail,
     remove_group_members_get, remove_group_members_post,
-    get_add_expense, handle_add_expense
+    get_add_expense, handle_add_expense, get_simplified_debts_page,
 )
 from dotenv import load_dotenv
 load_dotenv()
@@ -41,7 +41,7 @@ async def group_details(request: Request, group_id: str):
     return await get_single_group_detail(request, group_id)
 
 @rt('/{group_id}/remove-members')
-async def add_expense(request: Request, group_id: str):
+async def remove_member(request: Request, group_id: str):
     """Remove members page"""
     if request.method == 'POST':
         return await remove_group_members_post(request, group_id)
@@ -58,14 +58,12 @@ async def add_expense(request: Request, group_id: str):
 
 
 
-
-
-
-
-
-
-
 @rt('/{group_id}/simplified-debts')
-async def add_expense(request: Request, group_id: str):
-    """Add expense page - TODO: Implement"""
-    return f"Add Simplified debts for group {group_id} - Coming soon!"
+async def simplify(request: Request, group_id: str):
+    """Simplified debts page"""
+    return await get_simplified_debts_page(request, group_id)
+
+@rt('/{group_id}/settle')
+async def settle_payment_page(request: Request, group_id: str):
+    """Simple coming soon message"""
+    return "Payment settlement feature coming soon! 🚧"
