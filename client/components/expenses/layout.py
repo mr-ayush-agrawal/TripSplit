@@ -186,3 +186,10 @@ def add_expense_header(group_data, group_id):
         cls="add-expense-header"
     )
 
+def edit_expense_header(group_id: str, expense_id):
+    return Div(
+        Div(
+            A(Button("← Back to expense", onclick=f"window.location.href='/group/{group_id}/expense/{expense_id}'", cls="back-btn"))
+        ),
+        cls="add-expense-header"
+    )
