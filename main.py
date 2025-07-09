@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 
-app.include_router(user_router, prefix='/user')
-app.include_router(group_router, prefix='/group')
+app.include_router(user_router, prefix='/api/user')
+app.include_router(group_router, prefix='/api/group')
 
-@app.get('/')
+@app.get('/api/')
 def home():
     return{
         'status_code' : 200,
