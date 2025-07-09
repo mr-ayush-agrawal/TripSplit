@@ -1,6 +1,9 @@
 from fasthtml.common import *
 
-def expense_header(expense: dict, username: str, group_data: dict):
+from client.components.expenses.delete_modal import delete_expense_modal
+from client.static.expense.delete_script import delete_expense_script
+
+def expense_header(group_id, expense_id, expense: dict, username: str, group_data: dict):
     """
     Header section with expense title and basic info
     """
@@ -34,11 +37,13 @@ def expense_header(expense: dict, username: str, group_data: dict):
                     cls="expense-meta"
                 ),
                 expense_actions_buttons(expense, username),
+                delete_expense_modal(group_id, expense_id),
+                delete_expense_script(),
                 cls="expense-header-right"
             ),
             cls="expense-header-content"
         ),
-        cls="expense-header"
+        cls="expense-header",
     )
 
 def expense_members_breakdown(expense: dict, group_data: dict):
@@ -170,10 +175,9 @@ def expense_actions_buttons(expense: dict, username: str):
         Button(
             I(cls="fas fa-trash"),
             " Delete",
-            onclick=f"confirmDelete('{expense_id}', '{group_id}')",
+            onclick=f"showDeleteModal('{expense_id}')",
             cls="btn btn-danger btn-action-inline"
         ),
-        
         cls="expense-actions-inline"
     )
 

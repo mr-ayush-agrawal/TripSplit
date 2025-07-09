@@ -1,4 +1,4 @@
-import os, httpx
+import os, httpx, json
 from fastapi.responses import RedirectResponse
 from fastapi import Request
 from shared.cookie import LOGIN_COOKIE_NAME
@@ -44,12 +44,17 @@ async def show_expense(request: Request, group_id: str, expense_id: str):
             group_response = await client.get(f"{backend}/group/{group_id}", cookies=cookies)
             group_data = group_response.json().get("data", {}) if group_response.status_code == 200 else {}
 
-        return expense_detail_page(
-            username,
-            expense_data.get('expense', {}),
-            group_data,
-            expense_data.get('user_amount', 0.0)
-        ), expense_detail_styles(), expense_detail_scripts()
+        return (
+            expense_detail_page(
+                group_id, expense_id,
+                username,
+                expense_data.get('expense', {}),
+                group_data,
+                expense_data.get('user_amount', 0.0)
+            ), 
+            expense_detail_styles(), 
+            expense_detail_scripts()
+        )
 
     except Exception as e:
         print(f"Error in expense detail view: {e}")
@@ -105,3 +110,66 @@ async def get_edit_expense(request: Request, group_id: str, expense_id: str):
     except Exception as e:
         print(f"Error in edit expense page: {e}")
         return RedirectResponse(url=f"/group/{group_id}/expense/{expense_id}", status_code=303)
+
+async def handle_edit_expense(request: Request, group_id: str, expense_id: str):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+
+        form_data = await request.form()
+        
+        # Process form data - same structure as add expense
+        expense_data = {
+            "title": form_data.get("title"),
+            "description": form_data.get("description", ""),
+            "amount_original": float(form_data.get("amount", 0)),
+            "original_currency": form_data.get("currency"),
+            "exchange_rate": float(form_data.get("exchange_rate", 1)),
+            "paid_by_original": json.loads(form_data.get("paid_by", "{}")),
+            "borrowed_by_original": json.loads(form_data.get("borrowed_by", "{}"))
+        }
+
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.patch(
+                f"{backend}/group/{group_id}/expense/{expense_id}/update-expense",
+                json=expense_data,
+                cookies=cookies
+            )
+            
+        return RedirectResponse(url=f"/group/{group_id}/expense/{expense_id}", status_code=303)
+
+    except Exception as e:
+        print(f"Error updating expense: {e}")
+        return RedirectResponse(url=f"/group/{group_id}/expense/{expense_id}", status_code=303)
+
+async def handle_delete_expense(request : Request, group_id : str, expense_id : str):
+    try:
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+        
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.delete(
+                f"{backend}/group/{group_id}/expense/{expense_id}/delete",
+                cookies=cookies
+            )
+
+        if response.status_code == 200:
+            # Redirect back to group page after successful deletion
+            return RedirectResponse(url=f"/group/{group_id}", status_code=303)
+        else:
+            # Handle error - redirect to expense detail page with error
+            error_detail = response.json().get("detail", "Failed to delete expense")
+            return RedirectResponse(
+                url=f"/group/{group_id}/expense/{expense_id}?error={error_detail}", 
+                status_code=303
+            )
+
+    except Exception as e:
+        print(f"Error updating expense: {e}")
+        return RedirectResponse(url=f"/group/{group_id}/expense/{expense_id}", status_code=303)
+

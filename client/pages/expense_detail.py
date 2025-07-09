@@ -5,8 +5,7 @@ from client.components.expenses.layout import (
     expense_members_breakdown, expense_header, 
 )
 
-
-def expense_detail_page(username: str, expense_data: dict, group_data: dict, user_amount: float):
+def expense_detail_page(group_id, expense_id, username: str, expense_data: dict, group_data: dict, user_amount: float):
     """
     Main expense detail page component
     """
@@ -14,7 +13,7 @@ def expense_detail_page(username: str, expense_data: dict, group_data: dict, use
     group_currency = group_data.get('base_currency', 'INR')
     
     return Div(
-        expense_header(expense, username, group_data),
+        expense_header(group_id, expense_id, expense, username, group_data),
         expense_summary_card(expense, user_amount, group_currency),
         expense_members_breakdown(expense, group_data),
         cls="expense-detail-container"
