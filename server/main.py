@@ -20,14 +20,14 @@ def home():
         'message' : 'Welcome to Home page'
     }
 
-if __name__ == '__main__':
-    # run("main:app", host='localhost', port=8000, reload=True)
-    config = uvicorn.Config(
-        "main:app",
-        host="localhost",
-        port=8000,
-        reload=True,
-        reload_excludes=["logs/*"]
-    )
-    server = uvicorn.Server(config)
-    server.run() 
+# if __name__ == '__main__':
+#     # run("main:app", host='localhost', port=8000, reload=True)
+#     config = uvicorn.Config(
+#         "main:app",
+#         host="localhost",
+#         port=8000,
+#         reload=True,
+#         reload_excludes=["logs/*"]
+#     )
+#     server = uvicorn.Server(config)
+#     server.run() 

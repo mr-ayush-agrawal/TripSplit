@@ -1,0 +1,10 @@
+python-dotenv
+
+uvicorn
+fastapi
+pydantic
+
+pymongo
+
+
+python-fasthtml

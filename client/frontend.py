@@ -26,6 +26,6 @@ app, rt = fast_app(
 
 
 
-if __name__ == '__main__':
-    run("frontend:app", host='localhost', port=8080, reload=True)
+# if __name__ == '__main__':
+#     run("frontend:app", host='localhost', port=8080, reload=True)
 
