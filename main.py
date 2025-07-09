@@ -1,10 +1,8 @@
 from server.routes.user import user_router
 from server.routes.group import group_router
-import uvicorn
 
 import os
 from fastapi import FastAPI
-from uvicorn import run
 from dotenv import load_dotenv
 
 load_dotenv()
