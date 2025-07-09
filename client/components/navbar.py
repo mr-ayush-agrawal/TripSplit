@@ -1,4 +1,5 @@
 from fasthtml.common import *
+from client.components import APP_NAME
 
 def navbar(show_auth_buttons=True):
     """Main navigation bar"""
@@ -12,7 +13,7 @@ def navbar(show_auth_buttons=True):
     nav_bar = Div(
         Nav(
             Ul(
-                Li(Strong(A("SplitWise", href="/", style="text-decoration: none;")))
+                Li(Strong(A(APP_NAME, href="/", style="text-decoration: none;")))
             ),
             buttons,
             style='height : 25px'
@@ -28,7 +29,7 @@ def dashboard_nav(user_name: str = "User"):
     return Div(
         Nav(
             Ul(
-                Li(Strong(A("SplitWise", href="/user/", style="text-decoration: none;")))
+                Li(Strong(A(APP_NAME, href="/user/", style="text-decoration: none;")))
             ),
             Ul(
                 Li(

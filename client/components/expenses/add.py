@@ -190,7 +190,6 @@ def split_by_section(members, expense_data: dict = {}):
     non_zero_borrowers = {k: v for k, v in borrowed_by_data.items() if v > 0}
     total_borrowed = sum(borrowed_by_data.values())
     
-    # Determine split mode
     split_mode = "equally"  # default
     
     if len(non_zero_borrowers) > 0:

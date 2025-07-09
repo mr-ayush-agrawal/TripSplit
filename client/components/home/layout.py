@@ -1,10 +1,11 @@
 from fasthtml.common import *
 from client.components.navbar import navbar
+from client.components import FOOTER_CONTENT
 
 def home_base_layout(title, content, nav_auth_button = True):
     return Html(
         Head(
-            Title(f"{title} - SplitWise"),
+            Title(f"{title} - Nishka"),
             Meta(name="viewport", content="width=device-width, initial-scale=1"),
             Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"),
             Link(rel="stylesheet", href="client/static/style.css")
@@ -13,7 +14,7 @@ def home_base_layout(title, content, nav_auth_button = True):
             Header(navbar(show_auth_buttons=nav_auth_button )),
             Main(content, cls="container"),
             Footer(
-                Small("© 2025 SplitWise. Built with FastHTML."),
+                Small(FOOTER_CONTENT),
                 cls="container"
             )
         )

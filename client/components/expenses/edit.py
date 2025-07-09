@@ -81,8 +81,6 @@ def edit_borrowed_by_member(member_name, amount, all_members):
         cls="member-input-group"
     )
 
-
-
 def success_popup():
     """Success popup component"""
     return Div(

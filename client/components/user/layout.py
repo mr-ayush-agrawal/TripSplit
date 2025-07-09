@@ -9,7 +9,7 @@ def dashboard_layout( content, title = 'Welcome', username="User"):
     """Base layout for dashboard pages"""
     return Html(
         Head(
-            Title(f"{title} - SplitWise"),
+            Title(f"{title} - Nishka"),
             Meta(name="viewport", content="width=device-width, initial-scale=1"),
             Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"),
             Link(rel="stylesheet", href="/client/static/style.css"),
