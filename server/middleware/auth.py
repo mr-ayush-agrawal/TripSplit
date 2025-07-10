@@ -22,3 +22,13 @@ async def is_logged_in(request: Request):
             detail="Invalid or expired token"
         )
     return payload
+
+async def get_user_name(request: Request):
+    token = request.cookies.get(LOGIN_COOKIE_NAME)
+    if not token : 
+        return None
+
+    payload = verify_token(token)
+    if payload is None :
+        return None
+    return payload['user_name']

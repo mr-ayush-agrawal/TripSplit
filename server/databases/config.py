@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 from server.utils.exception import CustomError
 from server.utils.logger import logging
 
-# env_path = Path('server') / '.env'
-# load_dotenv(dotenv_path=env_path)
 load_dotenv()
 
 class DatabaseConfig:
@@ -28,6 +26,8 @@ class DatabaseConfig:
             self.expense_collection = self.database[os.getenv("EXPENSE_DATA_COLLECTION")]
             self.expense_collection.create_index("expense_id", unique=True)
 
+            self.feedback_collection = self.database[os.getenv('FEEDBACK_DATA_COLLECTION')]
+
         except Exception as e:
             logging.error("Database connection failed")
             print('Failed to connect to the database')
@@ -41,5 +41,8 @@ class DatabaseConfig:
     
     def get_expense_collection(self):
         return self.expense_collection
+    
+    def get_feedback_collection(self):
+        return self.feedback_collection
 
 database = DatabaseConfig()

@@ -22,10 +22,3 @@ app, rt = fast_app(
         Mount('/', home_router, name = 'home'),
     ]
 )
-
-
-
-
-# if __name__ == '__main__':
-#     run("frontend:app", host='localhost', port=8080, reload=True)
-

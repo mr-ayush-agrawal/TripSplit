@@ -38,8 +38,7 @@ def signup(user: NewUser):
         user_obj['password'] = hash_password(user_obj['password'])
 
         resp = user_collection.insert_one(user_obj)
-        print(user_obj)
-
+        
         logging.info('User data added succesfully')
         return {
             'status_code' : 200,
