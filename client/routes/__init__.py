@@ -1,0 +1,1 @@
+REQUEST_HEADER = {"Content-Type": "application/json"}

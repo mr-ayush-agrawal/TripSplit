@@ -12,6 +12,7 @@ from client.static.user.profile import profile_styles
 
 from shared.models.user import LoginRequest, NewUser, UpdateUserInfo, UpdatePassword
 from shared.cookie import COOKIE_TIMER, LOGIN_COOKIE_NAME, COOKIE_PATH, COOKIE_DOMAIN
+from client.routes import REQUEST_HEADER
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -41,23 +42,21 @@ async def login_post(request: Request, email: str = None, user_name: str = None,
         data = data.model_dump()
         
         async with httpx.AsyncClient() as client:
-            response = await client.post(f"{backend}/user/login", json=data)
-        
-        
+            response = await client.post(f"{backend}/user/login", json=data, headers=REQUEST_HEADER, cookies=request.cookies)
+
         if response.status_code == 200:
             cookies_dict = dict(response.cookies)
 
             redirect_response = RedirectResponse(url="/user/", status_code=303)
-            
+
             if LOGIN_COOKIE_NAME in cookies_dict:
                 redirect_response.set_cookie(
                     key=LOGIN_COOKIE_NAME,
                     value=cookies_dict[LOGIN_COOKIE_NAME],
                     httponly=True,
-                    secure=False,
+                    secure=True,
                     samesite="lax",
                     max_age=COOKIE_TIMER,
-                    domain=COOKIE_DOMAIN,
                     path=COOKIE_PATH
                 )
             

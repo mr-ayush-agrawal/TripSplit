@@ -79,15 +79,12 @@ def login(login_data : LoginRequest, response : Response):
             key=LOGIN_COOKIE_NAME,
             value=token,
             httponly=True,
-            secure=False,  # Set to True in production with HTTPS
+            secure=True,  # Set to True in production with HTTPS
             samesite="lax",
             max_age=COOKIE_TIMER,
-            domain="localhost",  # Add this for cross-port cookie sharing
             path="/"  # Ensure cookie is available for all paths
         )
 
-
-        logging.info(f'Login succesful for user : {user['user_name']}')
         return {"status_code": 200, "message": "Login successful"}
 
     except HTTPException as he:
