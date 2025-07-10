@@ -128,8 +128,8 @@ async def add_group_members_post(request: Request, group_id: str):
 
         # Get form data
         form_data = await request.form()
-        usernames_input = form_data.get('usernames', '').strip()
-        
+        usernames_input = form_data.get('usernames', '').strip().lower()
+        print(usernames_input)
         # Validate input
         if not usernames_input:
             return await add_group_members_get(request, group_id, error_message="Please enter at least one username")
