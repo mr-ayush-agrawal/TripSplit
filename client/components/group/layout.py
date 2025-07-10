@@ -27,7 +27,7 @@ def empty_groups_state():
             H2("No Groups Yet", style="text-align: center; color: var(--muted-color);"),
             P("Create your first group to start splitting expenses with friends", 
               style="text-align: center; color: var(--muted-color); margin-bottom: 2rem;"),
-            A("Create Your First Group", href="/groups/create", role="button", style="display: block; max-width: 300px; margin: 0 auto;"),
+            A("Create Your First Group", href="/group/create", role="button", style="display: block; max-width: 300px; margin: 0 auto;"),
             style="text-align: center; padding: 4rem 2rem;"
         )
     )

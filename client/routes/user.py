@@ -35,7 +35,7 @@ async def login_post(request: Request, email: str = None, user_name: str = None,
         if email : 
             data["email"] = email
         else :
-            data["user_name"] = user_name
+            data["user_name"] = user_name.lower()
 
         # sending request to backend
         data = LoginRequest(**data)
@@ -77,7 +77,7 @@ async def signup_post(name : str, email : str, user_name : str, password : str, 
     try : 
         if password != re_password:
             raise ValueError('Password do not match')
-        data = NewUser(name = name, email=email, user_name=user_name, currency=currency, password=password)
+        data = NewUser(name = name, email=email, user_name=user_name.lower(), currency=currency, password=password)
         data = data.model_dump()
 
         async with httpx.AsyncClient() as client:
