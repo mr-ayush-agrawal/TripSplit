@@ -5,4 +5,4 @@ class Feedback(BaseModel):
     user_name : Optional[str] = None
     topic: str
     description : str
-    is_resolved : bool = False
+    is_resolved : Optional[bool] = False
