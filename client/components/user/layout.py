@@ -1,9 +1,9 @@
 from fasthtml.common import *
 from client.static.user.dropdown import dropdown_styles
-from client.static.user.logout_script import logout_script
 from client.components.navbar import dashboard_nav
 from client.components.auth.logout_model import logout_modal
-from client.components import FOOTER_CONTENT
+from client.components.footer import dashboard_footer
+from client.static.user.logout_script import logout_script
 
 def dashboard_layout( content, title = 'Welcome', username="User"):
     """Base layout for dashboard pages"""
@@ -19,11 +19,7 @@ def dashboard_layout( content, title = 'Welcome', username="User"):
         Body(
             Header(dashboard_nav(user_name=username)),
             Main(content, cls="container", style="min-height: calc(100vh - 140px);"),
-            Footer(
-                Small(FOOTER_CONTENT),
-                cls="container",
-                style="text-align: center; padding: 2rem 0; margin-top: auto;"
-            ),
+            dashboard_footer(),
             logout_modal(),
             logout_script(),
             style="display: flex; flex-direction: column; min-height: 100vh;"

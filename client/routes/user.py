@@ -21,15 +21,14 @@ backend = os.getenv('BACKEND_URL')
 
 
 @rt('/login')
-async def login(request: Request, email: str = None, user_name: str = None, password: str = Form(...)):
+async def login_post(request: Request, email: str = None, user_name: str = None, password: str = Form(...)):
     if request.method == 'POST':
         return await login_handler(request, email, user_name, password)
     elif request.method == 'GET':
         return login_page()
 
 @rt('/signup')
-async def signup(request : Request, name : str = None, email : str = None, user_name : str = None, password : str = None, re_password: str = None, currency : str = 'INR'):
-    print(request)
+async def signup_post(request : Request, name : str, email : str, user_name : str, password : str, re_password: str, currency : str = None):
     if request.method == 'POST':
         return await signup_handler(name, email, user_name, password, re_password, currency)
     elif request.method == 'GET':

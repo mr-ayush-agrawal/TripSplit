@@ -1,6 +1,8 @@
 from server.routes.user import user_router
 from server.routes.group import group_router
+from server.routes.home import home_router
 from fastapi.middleware.cors import CORSMiddleware
+
 
 import os
 from fastapi import FastAPI
@@ -19,22 +21,4 @@ app.add_middleware(
 
 app.include_router(user_router, prefix='/api/user')
 app.include_router(group_router, prefix='/api/group')
-
-@app.get('/api/')
-def home():
-    return{
-        'status_code' : 200,
-        'message' : 'Welcome to Home page'
-    }
-
-# if __name__ == '__main__':
-#     # run("main:app", host='localhost', port=8000, reload=True)
-#     config = uvicorn.Config(
-#         "main:app",
-#         host="localhost",
-#         port=8000,
-#         reload=True,
-#         reload_excludes=["logs/*"]
-#     )
-#     server = uvicorn.Server(config)
-#     server.run() 
+app.include_router(home_router, prefix='/api')
