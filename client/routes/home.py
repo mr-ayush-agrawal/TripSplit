@@ -18,7 +18,7 @@ def get():
 @rt('/feedback')
 async def feedback(request : Request,  title: str = None, description: str = None):
     if request.method == 'GET':
-        return await feedback_get()
+        return await feedback_get(request)
     elif request.method == 'POST':
         return await feedback_handler(request, title, description)
 

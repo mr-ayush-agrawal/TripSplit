@@ -1,5 +1,6 @@
 from fasthtml.common import Div
 
+from client.components.user.layout import dashboard_layout
 from client.components.expenses.card import expense_summary_card
 from client.components.expenses.layout import (
     expense_members_breakdown, expense_header, 
@@ -12,9 +13,15 @@ def expense_detail_page(group_id, expense_id, username: str, expense_data: dict,
     expense = expense_data  # expense_data is already the expense object
     group_currency = group_data.get('base_currency', 'INR')
     
-    return Div(
+    content =  Div(
         expense_header(group_id, expense_id, expense, username, group_data),
         expense_summary_card(expense, user_amount, group_currency),
         expense_members_breakdown(expense, group_data),
         cls="expense-detail-container"
+    )
+
+    return dashboard_layout(
+        title = f'{expense_data.get('title', 'Expense')} - {group_data.get('group_name', 'Group')}',
+        content=content,
+        username=username
     )

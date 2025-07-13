@@ -11,9 +11,13 @@ load_dotenv()
 
 backend = os.getenv('BACKEND_URL')
 
-async def feedback_get():
+async def feedback_get(request : Request):
     content = feedback_layout("Feedback")
-    return home_base_layout(title='Feedback', content = content, nav_auth_button=True)
+    auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+    nav_buttons = True
+    if auth_cookie is not None:
+        nav_buttons = False
+    return home_base_layout(title='Feedback', content = content, nav_auth_button=nav_buttons)
 
 async def feedback_handler(request : Request, title : str, description: str):
     try : 
