@@ -454,4 +454,45 @@ async def get_simplified_debts_page(request: Request, group_id: str):
         print(f"Error in simplified debts view: {e}")
         return RedirectResponse(url="/group/", status_code=303)
 
+async def settlement_handler(request : Request , group_id : str):
+    try:
+        form_data = await request.form()
+        paid_by = form_data.get('paid_by')
+        paid_to = form_data.get('paid_to')
+        amount = float(form_data.get('amount'))
+        settlement_data = {
+            "paid_by": paid_by,
+            "paid_to": paid_to,
+            "group_id": group_id,
+            "amount": amount
+        }
+
+
+        auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)
+        if not auth_cookie:
+            return RedirectResponse(url="/user/login", status_code=303)
+        cookies = {LOGIN_COOKIE_NAME: auth_cookie}
+
+        async with httpx.AsyncClient(follow_redirects=True, cookies=cookies) as client:
+            response = await client.post(f"{backend}/group/{group_id}/settlement", cookies=cookies, json=settlement_data)
+
+            if response.status_code == 200:
+                # Success - redirect back to group page with success message
+                return RedirectResponse(
+                    url=f"/group/{group_id}/simplified-debts",
+                    status_code=303
+                )
+            else:
+                # Error - redirect back with error message
+                error_msg = response.json().get('detail', 'Settlement failed')
+                print(error_msg, settlement_data, sep='\n')
+                return RedirectResponse(
+                    url=f"/group/{group_id}",
+                    status_code=303
+                )
+
+    except Exception as e:
+        print(f"Error in simplified debts view: {e}")
+        return RedirectResponse(url="/group/", status_code=303)
+
 

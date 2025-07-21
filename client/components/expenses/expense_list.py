@@ -1,10 +1,10 @@
 from fasthtml.common import *
 from client.components.expenses.card import group_expense_card
 
-def expense_list(group_data, expenses_data):
+def expense_list(group_data, expenses_data, username):
     """Expenses section with expense cards"""
     expenses = expenses_data.get("expenses", [])
-    user_net_amount = expenses_data.get("amount", 0.0)
+    user_net_amount = group_data.get("member_balances",{}).get(username, 0.0)
     base_currency = expenses_data.get("currency", group_data.get("base_currency", "INR"))
     group_id = group_data.get("group_id", "")
     

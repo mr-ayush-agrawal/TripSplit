@@ -211,8 +211,7 @@ def simplify(group_id:str, current_user: dict):
     except Exception as e: 
         logging.error(f'Failed to get the group info of {group_id}, {e}')
         raise HTTPException(status_code = 500, detail = str(e))
-
-
+    
 def create_unique_group_id():
     i = 0
     while i<100:
@@ -226,4 +225,3 @@ def create_unique_group_id():
         status_code=500,
         detail='Failed to generate unique group ID'
     )
-    

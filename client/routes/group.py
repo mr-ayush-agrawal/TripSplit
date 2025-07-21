@@ -8,6 +8,7 @@ from client.controller.group import (
     get_group_home, get_single_group_detail,
     remove_group_members_get, remove_group_members_post,
     get_add_expense, handle_add_expense, get_simplified_debts_page,
+    settlement_handler
 )
 from dotenv import load_dotenv
 load_dotenv()
@@ -63,7 +64,6 @@ async def simplify(request: Request, group_id: str):
     """Simplified debts page"""
     return await get_simplified_debts_page(request, group_id)
 
-@rt('/{group_id}/settle')
+@rt('/{group_id}/settle', methods=['POST'])
 async def settle_payment_page(request: Request, group_id: str):
-    """Simple coming soon message"""
-    return "Payment settlement feature coming soon! 🚧"
+    return await settlement_handler(request, group_id)

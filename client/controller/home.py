@@ -11,6 +11,7 @@ load_dotenv()
 
 backend = os.getenv('BACKEND_URL')
 
+
 async def feedback_get(request : Request):
     content = feedback_layout("Feedback")
     auth_cookie = request.cookies.get(LOGIN_COOKIE_NAME)

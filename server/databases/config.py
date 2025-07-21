@@ -28,6 +28,8 @@ class DatabaseConfig:
 
             self.feedback_collection = self.database[os.getenv('FEEDBACK_DATA_COLLECTION')]
 
+            self.settlement_collection = self.database[os.getenv('SETTLEMENT_DATA_COLLECTION')]
+
         except Exception as e:
             logging.error("Database connection failed")
             print('Failed to connect to the database')
@@ -44,5 +46,8 @@ class DatabaseConfig:
     
     def get_feedback_collection(self):
         return self.feedback_collection
+    
+    def get_settlement_collection(self):
+        return self.settlement_collection
 
 database = DatabaseConfig()
