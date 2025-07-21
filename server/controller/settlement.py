@@ -19,7 +19,7 @@ def make_settlement(group_id: str, info : NewSettlement, current_user):
             raise HTTPException(status_code=404, detail="Group not found")
         if current_user['user_name'] not in group.get('members', []):
             raise HTTPException(status_code=403, detail="Not the member of group")
-        if current_user['user_name'] != info.paid_by or current_user['user_name']!=info.paid_to:
+        if current_user['user_name'] != info.paid_by and current_user['user_name']!=info.paid_to:
             raise HTTPException(status_code=403, detail='You are not the part of this transaction')
 
         info.settlement_id = create_unique_settlement_id()

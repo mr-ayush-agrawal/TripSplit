@@ -21,7 +21,7 @@ def single_group_page(username="User", group_data=None, expenses_data=None):
             # Main content area
             Div(
                 group_stats_section(group_data, expenses_data),
-                expense_list(group_data, expenses_data),
+                expense_list(group_data, expenses_data, username),
                 cls="main-content"
             ),
             # Sidebar

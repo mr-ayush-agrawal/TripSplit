@@ -86,16 +86,30 @@ def create_payment_item(payer, receiver, amount, currency, user_involved, curren
     # Determine the action for current user
     action_button = None
     if payer == current_user:
-        action_button = A(
-            "Mark as Paid",
-            href=f"/group/{group_id}/settle",
-            cls="settle-button pay-button"
+        action_button = Form(
+            Input(type="hidden", name="paid_by", value=payer),
+            Input(type="hidden", name="paid_to", value=receiver),
+            Input(type="hidden", name="amount", value=str(amount)),
+            Button(
+                "Mark as Paid",
+                type="submit",
+                cls="settle-button pay-button"
+            ),
+            method="POST",
+            action=f"/group/{group_id}/settle"
         )
     elif receiver == current_user:
-        action_button = A(
-            "Mark as Received", 
-            href=f"/group/{group_id}/settle",
-            cls="settle-button receive-button"
+        action_button = Form(
+            Input(type="hidden", name="paid_by", value=payer),
+            Input(type="hidden", name="paid_to", value=receiver),
+            Input(type="hidden", name="amount", value=str(amount)),
+            Button(
+                "Mark as Received",
+                type="submit", 
+                cls="settle-button receive-button"
+            ),
+            method="POST",
+            action=f"/group/{group_id}/settle"
         )
     
     return Div(
